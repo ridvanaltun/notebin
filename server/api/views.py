@@ -4,6 +4,7 @@ import json
 from django.urls import reverse
 from django.http import HttpResponseRedirect
 from django.core.exceptions import ValidationError
+from django.contrib.auth.models import update_last_login
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import BasePermission, IsAuthenticated, IsAuthenticatedOrReadOnly
@@ -141,6 +142,7 @@ def login(request):
         user = serializer.validated_data['user']
         refresh = RefreshToken.for_user(user)
         user_serializer = UserSerializer(user)
+        update_last_login(None, user)
         return Response({
             "user": user_serializer.data,
             "token": {
