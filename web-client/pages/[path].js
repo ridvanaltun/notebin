@@ -31,13 +31,13 @@ const Note = ({ path, note, redirect }) => {
   }, [])
 
   return (
-    <Box>
+    <>
       <NoteToolbar path={path} noteText={noteText} />
       <NotePaper
         value={noteText}
         onChange={(event) => { setNoteText(event.target.value) }}
       />
-    </Box>
+    </>
   )
 }
 

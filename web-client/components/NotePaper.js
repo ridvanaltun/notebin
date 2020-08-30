@@ -10,7 +10,10 @@ const useStyles = makeStyles({
   note: {
     display: 'flex',
     backgroundColor: '#f2eecb',
-    padding: 25
+    padding: 25,
+    flex: 1,
+    flexDirection: 'column',
+    height: '100%'
   }
 })
 
