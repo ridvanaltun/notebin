@@ -1,3 +1,5 @@
+This is a [Django](https://www.djangoproject.com/) project extend with [Django REST Framework](https://www.django-rest-framework.org/).
+
 ## Getting Started
 
 ```bash
