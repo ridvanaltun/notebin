@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
-
-// Components
-import Box from '@material-ui/core/Box'
+import { toast } from 'react-toastify'
 
 // Custom Components
-import { NoteToolbar, NotePaper } from '../components'
+import { NoteToolbar, NotePaper, LoadingOverlay } from '../components'
 
 // Redux
 import { useDispatch } from 'react-redux'
@@ -24,19 +22,55 @@ const Note = ({ path, note, redirect }) => {
 
   // States
   const [noteText, setNoteText] = useState(note.text)
+  const [loading, setLoading] = useState(false)
 
   // Change App Title
   useEffect(() => {
     dispatch(setTitle('Notebin'))
   }, [])
 
+  const handleNoteChange = async (event) => {
+    const newNoteText = event.target.value
+    setNoteText(newNoteText)
+
+    // set loading
+    const spinnerTimeout = setTimeout(() => {
+      setLoading(true)
+    }, 100)
+
+    try {
+      // update note on server
+      await apiClient({
+        method: 'patch',
+        url: `/notes/${path}`,
+        data: {
+          text: newNoteText
+        }
+      })
+
+      // clear loading
+      setLoading(false)
+      clearTimeout(spinnerTimeout)
+    } catch (error) {
+      if (error.response) {
+        toast.info(
+          `🐱‍🐉 An error occured. Error Code: ${error.response.status}`
+        )
+      } else {
+        toast.info('🐱‍🐉 An unknown error occured.')
+      }
+
+      // clear loading
+      setLoading(false)
+      clearTimeout(spinnerTimeout)
+    }
+  }
+
   return (
     <>
       <NoteToolbar path={path} noteText={noteText} />
-      <NotePaper
-        value={noteText}
-        onChange={(event) => { setNoteText(event.target.value) }}
-      />
+      <NotePaper value={noteText} onChange={handleNoteChange} />
+      <LoadingOverlay loading={loading} />
     </>
   )
 }
@@ -72,7 +106,7 @@ Note.getInitialProps = async (ctx) => {
     if (noteHasPassword) {
       const redirectLocation = `/${path}/login`
 
-      if (isServer) ctx.res.writeHead(302, { Location: redirectLocation }).end()
+      if (isServer) { ctx.res.writeHead(302, { Location: redirectLocation }).end() }
 
       return { redirect: redirectLocation }
     }

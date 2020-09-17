@@ -8,6 +8,7 @@ import NoteToolbar from './NoteToolbar'
 import ToolbarItem from './ToolbarItem'
 import NotePaper from './NotePaper'
 import CodePreviewToolbar from './CodePreviewToolbar'
+import LoadingOverlay from './LoadingOverlay'
 
 export {
   AppBar,
@@ -19,5 +20,6 @@ export {
   NoteToolbar,
   ToolbarItem,
   NotePaper,
-  CodePreviewToolbar
+  CodePreviewToolbar,
+  LoadingOverlay
 }
