@@ -19,5 +19,5 @@ urlpatterns = [
     path('password', views.password, name='password'),
     path('trackings', views.trackings, name='trackings'),
     path('backups', views.backups, name='backups'),
-    path('backups/<str:uuid>', views.backup, name='backups-uuid'),
+    path('backups/<str:uuid>', views.backup, name='backup'),
 ]
