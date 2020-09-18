@@ -11,18 +11,47 @@ import { setTitle } from '../store/actions/appAction'
 
 // Utils
 import { useRouter } from 'next/router'
-import { apiClient } from '../utils'
+import { apiClient, useCookie } from '../utils'
 
-const Note = ({ path, note, redirect }) => {
+const Note = ({ path, note, hasPassword }) => {
   const dispatch = useDispatch()
   const router = useRouter()
-
-  // Redirect if note has password
-  if (redirect) router.push(redirect)
 
   // States
   const [noteText, setNoteText] = useState(note.text)
   const [loading, setLoading] = useState(false)
+  const [handlingPassword, setHandlingPassword] = useState(hasPassword)
+  const [passwordCookie, updatePasswordCookie] = useCookie(`notes-${path}`, false)
+
+  // Handle password
+  useEffect(() => {
+    async function fetchNoteWithPassword () {
+      if (passwordCookie) {
+        try {
+          // Fetch Note with password
+          const res = await apiClient({
+            method: 'post',
+            url: `/notes/${path}`,
+            data: {
+              password: passwordCookie
+            }
+          })
+          setNoteText(res.data.text)
+          setHandlingPassword(false)
+        } catch (error) {
+          // Go to note login page
+          toast.info('🐱‍🐉 Saved password incorrect')
+          const redirectLocation = `/${path}/login`
+          router.push(redirectLocation)
+        }
+      } else {
+        // Go to note login page directly
+        const redirectLocation = `/${path}/login`
+        router.push(redirectLocation)
+      }
+    }
+    if (hasPassword) fetchNoteWithPassword()
+  }, [])
 
   // Change App Title
   useEffect(() => {
@@ -66,6 +95,17 @@ const Note = ({ path, note, redirect }) => {
     }
   }
 
+  if (handlingPassword) {
+    return (
+      <>
+        <NoteToolbar path={path} noteText={noteText} />
+        <div>
+          Password Handling...
+        </div>
+      </>
+    )
+  }
+
   return (
     <>
       <NoteToolbar path={path} noteText={noteText} />
@@ -77,7 +117,7 @@ const Note = ({ path, note, redirect }) => {
 
 Note.getInitialProps = async (ctx) => {
   const { path } = ctx.query
-  const isServer = !!ctx.req
+  // const isServer = !!ctx.req
 
   try {
     // Fetch Note
@@ -85,14 +125,14 @@ Note.getInitialProps = async (ctx) => {
       method: 'get',
       url: `/notes/${path}`
     })
-    return { note: res.data, path }
+    return { hasPassword: false, note: res.data, path }
   } catch (error) {
     // Handle Error
     const noteNotFounded = error.response && error.response.status === 404
     const noteHasPassword = error.response && error.response.status === 400
 
-    // Create Note
     if (noteNotFounded) {
+      // Create Note
       const res = await apiClient({
         method: 'post',
         url: '/notes',
@@ -100,15 +140,15 @@ Note.getInitialProps = async (ctx) => {
           path
         }
       })
-      return { note: res.data, path }
+      return { hasPassword: false, note: res.data, path }
     }
 
     if (noteHasPassword) {
-      const redirectLocation = `/${path}/login`
+      // const redirectLocation = `/${path}/login`
 
-      if (isServer) { ctx.res.writeHead(302, { Location: redirectLocation }).end() }
+      // if (isServer) { ctx.res.writeHead(302, { Location: redirectLocation }).end() }
 
-      return { redirect: redirectLocation }
+      return { hasPassword: true, note: { text: '' }, path }
     }
 
     // Other Errors
@@ -120,7 +160,7 @@ Note.propTypes = {
   path: PropTypes.string,
   note: PropTypes.object,
   redirect: PropTypes.string,
-  error: PropTypes.object
+  hasPassword: PropTypes.bool
 }
 
 export default Note

@@ -32,7 +32,7 @@ def notes(request):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['GET', 'PATCH', 'DELETE'])
+@api_view(['GET', 'POST', 'PATCH', 'DELETE'])
 def note(request, path):
     try:
         note = Note.objects.get(path=path)
@@ -58,6 +58,26 @@ def note(request, path):
                     }, status=status.HTTP_400_BAD_REQUEST)
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    # some fetch clients not support get body like axios
+    # therefore we extended the api
+    elif request.method == 'POST':
+        serializer = NotePasswordSerializer(data=request.data)
+
+        if note.password is None:
+            serializer = NoteSerializer(note)
+            return Response(serializer.data)
+
+        elif serializer.is_valid():
+            if request.data['password'] == note.password:
+                serializer = NoteSerializer(note)
+                return Response(serializer.data)
+            else:
+                return Response({
+                    "password": ["Password incorrect."]
+                }, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
     elif request.method == 'PATCH':
@@ -113,6 +133,19 @@ def note_password(request, path):
                 "password": ["Password incorrect."]
             }, status=status.HTTP_400_BAD_REQUEST)
 
+
+@api_view(['GET'])
+def note_has_password(request, path):
+    try:
+        note = Note.objects.get(path=path)
+    except Note.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'GET':
+        if note.password:
+            return Response('OK')
+        else:
+            return Response('KO')
 
 @api_view(['GET', 'PATCH', 'DELETE'])
 @permission_classes([IsAuthenticated])

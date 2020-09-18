@@ -8,6 +8,7 @@ from . import views
 urlpatterns = [
     path("notes", views.notes, name="notes"),
     path("notes/<str:path>", views.note, name="note"),
+    path("notes/<str:path>/hasPassword", views.note_has_password, name="note-has-password"),
     path("notes/<str:path>/password", views.note_password, name="note-password"),
     path('token', TokenObtainPairView.as_view(), name='token-obtain-pair'),
     path('token/refresh', TokenRefreshView.as_view(), name='token-refresh'),

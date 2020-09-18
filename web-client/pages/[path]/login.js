@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react'
+import PropTypes from 'prop-types'
+import { toast } from 'react-toastify'
 
 // Components
 import Avatar from '@material-ui/core/Avatar'
@@ -20,6 +22,7 @@ import { setTitle } from '../../store/actions/appAction'
 // Utils
 import { makeStyles } from '@material-ui/core/styles'
 import { useRouter } from 'next/router'
+import { apiClient, useCookie } from '../../utils'
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -41,22 +44,44 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-const NoteLogin = () => {
+const NoteLogin = ({ path, hasPassword }) => {
   const classes = useStyles()
   const dispatch = useDispatch()
   const router = useRouter()
 
+  // Redirect to note if note has not a password
+  if (hasPassword === false) router.push(`/${path}`)
+
   // States
   const [password, setPassword] = useState('')
+  const [passwordCookie, updatePasswordCookie] = useCookie(`notes-${path}`, false)
 
   // Change App Title
   useEffect(() => {
     dispatch(setTitle('Note Login'))
   }, [])
 
-  const handleChangeNotePassword = (event) => {
+  const handleAccessNote = async (event) => {
     event.preventDefault()
-    router.push(`/${router.query.path}`)
+
+    try {
+      await apiClient({
+        method: 'post',
+        url: `/notes/${path}`,
+        data: {
+          password
+        }
+      })
+      // Save the password as cookie and redirect to note page
+      updatePasswordCookie(password, 10)
+      router.push(`/${path}`)
+    } catch (error) {
+      if (error.response && error.response.status === 400) {
+        toast.info('🐱‍🐉 Note password incorrect.')
+      } else {
+        toast.info('🐱‍🐉 An unknown error occured.')
+      }
+    }
   }
 
   return (
@@ -68,7 +93,7 @@ const NoteLogin = () => {
         <Typography component="h1" variant="h5">
           Note Password
         </Typography>
-        <form className={classes.form} onSubmit={handleChangeNotePassword}>
+        <form className={classes.form} onSubmit={handleAccessNote}>
           <PasswordInput
             autoFocus
             variant="outlined"
@@ -94,6 +119,44 @@ const NoteLogin = () => {
       </Box>
     </Container>
   )
+}
+
+NoteLogin.getInitialProps = async (ctx) => {
+  const { path } = ctx.query
+  const isServer = !!ctx.req
+  const redirectLocation = `/${path}`
+
+  try {
+    // Fetch Note
+    const res = await apiClient({
+      method: 'get',
+      url: `/notes/${path}/hasPassword`
+    })
+
+    // Note has a password, stay the page
+    if (res.data === 'OK') {
+      return { path, hasPassword: true }
+    }
+
+    // The note dont have a password, go to note
+    if (res.data === 'KO') {
+      if (isServer) { ctx.res.writeHead(302, { Location: redirectLocation }).end() }
+
+      return { path, hasPassword: false }
+    }
+  } catch (error) {
+    // If occured error try to open note
+    if (isServer) { ctx.res.writeHead(302, { Location: redirectLocation }).end() }
+
+    return { path, hasPassword: false }
+  }
+
+  return { path }
+}
+
+NoteLogin.propTypes = {
+  path: PropTypes.string,
+  hasPassword: PropTypes.bool
 }
 
 export default NoteLogin
