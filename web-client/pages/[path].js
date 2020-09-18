@@ -13,12 +13,12 @@ import { setTitle } from '../store/actions/appAction'
 import { useRouter } from 'next/router'
 import { apiClient, useCookie } from '../utils'
 
-const Note = ({ path, note, hasPassword }) => {
+const Note = ({ path, noteInfo, hasPassword }) => {
   const dispatch = useDispatch()
   const router = useRouter()
 
   // States
-  const [noteText, setNoteText] = useState(note.text)
+  const [note, setNote] = useState(noteInfo)
   const [loading, setLoading] = useState(false)
   const [handlingPassword, setHandlingPassword] = useState(hasPassword)
   const [passwordCookie, updatePasswordCookie] = useCookie(`notes-${path}`, false)
@@ -36,7 +36,7 @@ const Note = ({ path, note, hasPassword }) => {
               password: passwordCookie
             }
           })
-          setNoteText(res.data.text)
+          setNote(res.data)
           setHandlingPassword(false)
         } catch (error) {
           // Go to note login page
@@ -60,7 +60,7 @@ const Note = ({ path, note, hasPassword }) => {
 
   const handleNoteChange = async (event) => {
     const newNoteText = event.target.value
-    setNoteText(newNoteText)
+    setNote({ ...note, text: newNoteText })
 
     // set loading
     const spinnerTimeout = setTimeout(() => {
@@ -98,7 +98,7 @@ const Note = ({ path, note, hasPassword }) => {
   if (handlingPassword) {
     return (
       <>
-        <NoteToolbar path={path} noteText={noteText} />
+        <NoteToolbar path={path} note={note} password={passwordCookie} updatePassword={updatePasswordCookie} />
         <div>
           Password Handling...
         </div>
@@ -108,8 +108,8 @@ const Note = ({ path, note, hasPassword }) => {
 
   return (
     <>
-      <NoteToolbar path={path} noteText={noteText} />
-      <NotePaper value={noteText} onChange={handleNoteChange} />
+      <NoteToolbar path={path} note={note} password={passwordCookie} updatePassword={updatePasswordCookie} />
+      <NotePaper value={note.text} onChange={handleNoteChange} />
       <LoadingOverlay loading={loading} />
     </>
   )
@@ -117,7 +117,6 @@ const Note = ({ path, note, hasPassword }) => {
 
 Note.getInitialProps = async (ctx) => {
   const { path } = ctx.query
-  // const isServer = !!ctx.req
 
   try {
     // Fetch Note
@@ -125,7 +124,7 @@ Note.getInitialProps = async (ctx) => {
       method: 'get',
       url: `/notes/${path}`
     })
-    return { hasPassword: false, note: res.data, path }
+    return { hasPassword: false, noteInfo: res.data, path }
   } catch (error) {
     // Handle Error
     const noteNotFounded = error.response && error.response.status === 404
@@ -140,16 +139,10 @@ Note.getInitialProps = async (ctx) => {
           path
         }
       })
-      return { hasPassword: false, note: res.data, path }
+      return { hasPassword: false, noteInfo: res.data, path }
     }
 
-    if (noteHasPassword) {
-      // const redirectLocation = `/${path}/login`
-
-      // if (isServer) { ctx.res.writeHead(302, { Location: redirectLocation }).end() }
-
-      return { hasPassword: true, note: { text: '' }, path }
-    }
+    if (noteHasPassword) return { hasPassword: true, noteInfo: { text: '' }, path }
 
     // Other Errors
     return { error }
@@ -158,7 +151,7 @@ Note.getInitialProps = async (ctx) => {
 
 Note.propTypes = {
   path: PropTypes.string,
-  note: PropTypes.object,
+  noteInfo: PropTypes.object,
   redirect: PropTypes.string,
   hasPassword: PropTypes.bool
 }

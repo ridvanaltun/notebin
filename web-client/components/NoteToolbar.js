@@ -31,6 +31,7 @@ import { useSelector } from 'react-redux'
 // Utils
 import { useRouter } from 'next/router'
 import { makeStyles } from '@material-ui/core/styles'
+import { apiClient } from '../utils'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -48,7 +49,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-const NoteToolbar = ({ path, noteText }) => {
+const NoteToolbar = ({ path, note, password, updatePassword }) => {
   const classes = useStyles()
   const router = useRouter()
 
@@ -61,7 +62,6 @@ const NoteToolbar = ({ path, noteText }) => {
 
   // Redux States
   const { user } = useSelector(state => state.auth)
-  const { note } = useSelector(state => state.note)
 
   const onCodeViewPress = () => {
     router.push(`/code/${path}`)
@@ -75,12 +75,12 @@ const NoteToolbar = ({ path, noteText }) => {
     const PDF = require('jspdf')
     const doc = new PDF()
     doc.setFontSize(16)
-    doc.text(noteText, 10, 10)
+    doc.text(note.text, 10, 10)
     doc.save(`${path}.pdf`)
   }
 
   const onCopyPress = () => {
-    copy(noteText)
+    copy(note.text)
     toast.info('🚀 Note copied!', { autoClose: 2000 })
   }
 
@@ -138,15 +138,43 @@ const NoteToolbar = ({ path, noteText }) => {
     return <ToolbarItem icon={<Spellcheck />} onClick={onSpellcheckTogglePress} />
   }
 
-  const handleChangeNotePassword = () => {
-    setNewNotePassword('')
-    setPasswordOptionsModal(false)
-    toast.info('🚀 Password applied!', { autoClose: 2000 })
+  const handleChangeNotePassword = async (event) => {
+    event.preventDefault()
+    try {
+      await apiClient({
+        method: 'post',
+        url: `/notes/${path}/password`,
+        data: {
+          password: newNotePassword
+        }
+      })
+      updatePassword(newNotePassword, 10)
+      note.has_password = true
+      setNewNotePassword('')
+      toast.info('🚀 Password applied!', { autoClose: 2000 })
+    } catch (error) {
+      toast.info('🐱‍🐉 Error occured.')
+    } finally {
+      setPasswordOptionsModal(false)
+    }
   }
 
-  const handleRemoveNotePassword = () => {
-    setPasswordOptionsModal(false)
-    toast.info('🚀 Password removed!', { autoClose: 2000 })
+  const handleRemoveNotePassword = async () => {
+    try {
+      await apiClient({
+        method: 'delete',
+        url: `/notes/${path}/password`,
+        data: {
+          password
+        }
+      })
+      note.has_password = false
+      toast.info('🚀 Password removed!', { autoClose: 2000 })
+    } catch (error) {
+      toast.info('🐱‍🐉 Error occured.')
+    } finally {
+      setPasswordOptionsModal(false)
+    }
   }
 
   const renderPasswordOptionsModal = () => {
@@ -261,8 +289,8 @@ const NoteToolbar = ({ path, noteText }) => {
             <ToolbarItem icon={<Code />} title="Code" onClick={onCodeViewPress} />
             <ToolbarItem icon={<Pageview />} title="Markdown" onClick={onMarkdownViewPress} />
             <Divider className={classes.divider} orientation="vertical" flexItem light />
-            <ToolbarItem icon={<SaveAlt />} disabled={!noteText} onClick={onDownloadPress} />
-            <ToolbarItem icon={<FileCopy />} disabled={!noteText} onClick={onCopyPress} />
+            <ToolbarItem icon={<SaveAlt />} disabled={!note.text} onClick={onDownloadPress} />
+            <ToolbarItem icon={<FileCopy />} disabled={!note.text} onClick={onCopyPress} />
             {renderSpellcheckItem()}
             <ToolbarItem icon={<Create />} onClick={onChangeUrlPress} />
           </Toolbar>
@@ -276,7 +304,9 @@ const NoteToolbar = ({ path, noteText }) => {
 
 NoteToolbar.propTypes = {
   path: PropTypes.string.isRequired,
-  noteText: PropTypes.string.isRequired
+  password: PropTypes.string,
+  note: PropTypes.object.isRequired,
+  updatePassword: PropTypes.func.isRequired
 }
 
 export default NoteToolbar
