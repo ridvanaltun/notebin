@@ -25,7 +25,7 @@ const storage = {
   }
 }
 
-export default function useLocalStorage (key, initialValue) {
+const useLocalStorage = (key, initialValue) => {
   const [value, setValue] = useState(initialValue)
 
   useEffect(() => {
@@ -39,3 +39,5 @@ export default function useLocalStorage (key, initialValue) {
 
   return [value, setItem]
 }
+
+export default useLocalStorage

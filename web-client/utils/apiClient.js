@@ -145,7 +145,7 @@ const applyAppTokenRefreshInterceptor = (axiosClient, customOptions = {}) => {
   axiosClient.interceptors.response.use(undefined, interceptor)
 }
 
-export default async (requestSettings, bindToken = true) => {
+const apiClient = async (requestSettings, bindToken = true) => {
   const apiClient = axios.create({
     baseURL: process.env.API_BASE_URL
   })
@@ -161,3 +161,5 @@ export default async (requestSettings, bindToken = true) => {
 
   return await apiClient(requestSettings)
 }
+
+export default apiClient

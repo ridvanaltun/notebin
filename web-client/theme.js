@@ -1,7 +1,7 @@
 import { createMuiTheme } from '@material-ui/core/styles'
 import { red, orange, deepOrange } from '@material-ui/core/colors'
 
-export default (darkState) => {
+const Theme = (darkState) => {
   const palletType = darkState ? 'dark' : 'light'
   const mainPrimaryColor = darkState ? orange[500] : '#556cd6'
   const mainSecondaryColor = darkState ? deepOrange[900] : '#19857b'
@@ -25,3 +25,5 @@ export default (darkState) => {
     }
   })
 }
+
+export default Theme
