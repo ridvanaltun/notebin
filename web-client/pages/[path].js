@@ -42,7 +42,7 @@ const Note = ({ path, noteInfo, hasPassword }) => {
             data: {
               password: passwordCookie
             }
-          })
+          }, false)
           setNote(res.data)
           setHandlingPassword(false)
         } catch (error) {
@@ -82,7 +82,7 @@ const Note = ({ path, noteInfo, hasPassword }) => {
         data: {
           text: newNoteText
         }
-      })
+      }, false)
 
       // clear loading
       setLoading(false)
@@ -141,7 +141,7 @@ Note.getInitialProps = async (ctx) => {
     const res = await apiClient({
       method: 'get',
       url: `/notes/${path}`
-    })
+    }, false)
     return { hasPassword: false, noteInfo: res.data, path }
   } catch (error) {
     // Handle Error
@@ -156,7 +156,7 @@ Note.getInitialProps = async (ctx) => {
         data: {
           path
         }
-      })
+      }, false)
       return { hasPassword: false, noteInfo: res.data, path }
     }
 

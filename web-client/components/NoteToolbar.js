@@ -147,7 +147,7 @@ const NoteToolbar = ({ path, note, password, updatePassword }) => {
         data: {
           password: newNotePassword
         }
-      })
+      }, false)
       updatePassword(newNotePassword, 10)
       note.has_password = true
       setNewNotePassword('')
@@ -167,7 +167,7 @@ const NoteToolbar = ({ path, note, password, updatePassword }) => {
         data: {
           password
         }
-      })
+      }, false)
       note.has_password = false
       toast.info('🚀 Password removed!', { autoClose: 2000 })
     } catch (error) {

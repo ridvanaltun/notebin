@@ -71,7 +71,7 @@ const NoteLogin = ({ path, hasPassword }) => {
         data: {
           password
         }
-      })
+      }, false)
       // Save the password as cookie and redirect to note page
       updatePasswordCookie(password, 10)
       router.push(`/${path}`)
@@ -131,7 +131,7 @@ NoteLogin.getInitialProps = async (ctx) => {
     const res = await apiClient({
       method: 'get',
       url: `/notes/${path}/hasPassword`
-    })
+    }, false)
 
     // Note has a password, stay the page
     if (res.data === 'OK') {
