@@ -67,9 +67,7 @@ const Register = () => {
   const { error } = useSelector(state => state.auth)
 
   // Change App Title
-  useEffect(() => {
-    dispatch(setTitle('Register'))
-  }, [])
+  useEffect(() => { dispatch(setTitle('Register')) }, [])
 
   const handleRegister = (event) => {
     event.preventDefault()

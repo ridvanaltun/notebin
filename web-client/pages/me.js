@@ -171,9 +171,7 @@ const Me = () => {
   })
 
   // Change App Title
-  useEffect(() => {
-    dispatch(setTitle(`${user.username}'s Profile`))
-  }, [])
+  useEffect(() => { dispatch(setTitle(`${user.username}'s Profile`)) }, [])
 
   const handleAccordionChange = (panel) => (event, isExpanded) => {
     setExpanded(isExpanded ? panel : false)

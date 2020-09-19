@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import PropTypes from 'prop-types'
 
 // Components
 import InputLabel from '@material-ui/core/InputLabel'
@@ -14,24 +15,24 @@ import { Blank, CodePreviewToolbar } from '../../components'
 import { useDispatch } from 'react-redux'
 import { setTitle } from '../../store/actions/appAction'
 
-const Content = (props) => {
-  if (props.code) {
+const Content = ({ code, language, onLanguageChange }) => {
+  if (code) {
     return (
       <Box m={5}>
         <InputLabel id="demo-simple-select-label">Language</InputLabel>
         <Select
           labelId="code-select-label"
           id="code-select"
-          value={props.language}
-          onChange={props.onLanguageChange}
+          value={language}
+          onChange={onLanguageChange}
         >
           <MenuItem value="javascript">JavaScript</MenuItem>
           <MenuItem value="php">PHP</MenuItem>
           <MenuItem value="python">Python</MenuItem>
         </Select>
         <Box m={5}>
-          <SyntaxHighlighter language={props.language}>
-            {props.code}
+          <SyntaxHighlighter language={language}>
+            {code}
           </SyntaxHighlighter>
         </Box>
       </Box>
@@ -41,6 +42,12 @@ const Content = (props) => {
   return <Blank />
 }
 
+Content.propTypes = {
+  code: PropTypes.string,
+  language: PropTypes.string,
+  onLanguageChange: PropTypes.func
+}
+
 const CodePreview = ({ note }) => {
   const dispatch = useDispatch()
 
@@ -48,9 +55,7 @@ const CodePreview = ({ note }) => {
   const [code, setCode] = useState('javascript')
 
   // Change App Title
-  useEffect(() => {
-    dispatch(setTitle('Code Preview'))
-  }, [])
+  useEffect(() => { dispatch(setTitle('Code Preview')) }, [])
 
   const handleCodeChange = (event) => {
     setCode(event.target.value)
@@ -73,6 +78,10 @@ CodePreview.getInitialProps = async (ctx) => {
   // const res = await axios.get('https://api.github.com/repos/vercel/next.js')
   // const data = await res.data
   return { note: path }
+}
+
+CodePreview.propTypes = {
+  note: PropTypes.string
 }
 
 export default CodePreview

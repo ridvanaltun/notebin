@@ -57,9 +57,7 @@ const NoteLogin = ({ path, hasPassword }) => {
   const [passwordCookie, updatePasswordCookie] = useCookie(`notes-${path}`, false)
 
   // Change App Title
-  useEffect(() => {
-    dispatch(setTitle('Note Login'))
-  }, [])
+  useEffect(() => { dispatch(setTitle('Note Login')) }, [])
 
   const handleAccessNote = async (event) => {
     event.preventDefault()

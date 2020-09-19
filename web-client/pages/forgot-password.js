@@ -45,9 +45,7 @@ const ForgotPassword = () => {
   const dispatch = useDispatch()
 
   // Change App Title
-  useEffect(() => {
-    dispatch(setTitle('Forgot Password'))
-  }, [])
+  useEffect(() => { dispatch(setTitle('Forgot Password')) }, [])
 
   const handleForgotPassword = (event) => {
     event.preventDefault()

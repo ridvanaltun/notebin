@@ -60,9 +60,7 @@ const Login = () => {
   const { error } = useSelector(state => state.auth)
 
   // Change App Title
-  useEffect(() => {
-    dispatch(setTitle('Login'))
-  }, [])
+  useEffect(() => { dispatch(setTitle('Login')) }, [])
 
   const handleLogin = (event) => {
     event.preventDefault()
