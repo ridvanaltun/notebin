@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 import copy from 'copy-to-clipboard'
+import { jsPDF as PDF } from 'jspdf'
 import { toast } from 'react-toastify'
 
 // Components
@@ -29,9 +30,8 @@ import { Check, Close, Code, FileCopy, Archive, Lock, LockOpen, Pageview, SaveAl
 import { useSelector } from 'react-redux'
 
 // Utils
-import { useRouter } from 'next/router'
 import { makeStyles } from '@material-ui/core/styles'
-import { apiClient } from '../utils'
+import { apiClient, openInNewTab } from '../utils'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -51,7 +51,6 @@ const useStyles = makeStyles((theme) => ({
 
 const NoteToolbar = ({ path, note, password, updatePassword }) => {
   const classes = useStyles()
-  const router = useRouter()
 
   // States
   const [spellcheck, setSpellcheck] = useState(false)
@@ -64,15 +63,14 @@ const NoteToolbar = ({ path, note, password, updatePassword }) => {
   const { user } = useSelector(state => state.auth)
 
   const onCodeViewPress = () => {
-    router.push(`/code/${path}`)
+    openInNewTab(`/code/${path}`)
   }
 
   const onMarkdownViewPress = () => {
-    router.push(`/markdown/${path}`)
+    openInNewTab(`/markdown/${path}`)
   }
 
   const onDownloadPress = () => {
-    const PDF = require('jspdf')
     const doc = new PDF()
     doc.setFontSize(16)
     doc.text(note.text, 10, 10)
