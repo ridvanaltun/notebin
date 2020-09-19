@@ -2,8 +2,15 @@ import React, { useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
 import { toast } from 'react-toastify'
 
+// Components
+import Box from '@material-ui/core/Box'
+import Typography from '@material-ui/core/Typography'
+
 // Custom Components
 import { NoteToolbar, NotePaper, LoadingOverlay } from '../components'
+
+// Icons
+import Lock from '@material-ui/icons/Lock'
 
 // Redux
 import { useDispatch } from 'react-redux'
@@ -97,12 +104,23 @@ const Note = ({ path, noteInfo, hasPassword }) => {
 
   if (handlingPassword) {
     return (
-      <>
-        <NoteToolbar path={path} note={note} password={passwordCookie} updatePassword={updatePasswordCookie} />
-        <div>
-          Password Handling...
-        </div>
-      </>
+      <Typography component="div" style={{ display: 'flex', height: '80%', alignItems: 'center', justifyContent: 'center' }}>
+        <Box
+          display="flex"
+          flexDirection="column"
+          alignItems="center"
+          justifyContent="center"
+          p={2}
+          fontWeight="fontWeightMedium"
+          fontSize={24}
+          letterSpacing={6}
+        >
+          <Lock style={{ fontSize: 200 }} />
+          <Box textAlign="center" m={4}>
+          WAIT, PASSWORD HANDLING...
+          </Box>
+        </Box>
+      </Typography>
     )
   }
 
