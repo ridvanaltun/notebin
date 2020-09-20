@@ -25,7 +25,7 @@ const MarkdownPreview = ({ noteInfo, path, hasPassword }) => {
   // States
   const [note, setNote] = useState(noteInfo)
   const [handlingPassword, setHandlingPassword] = useState(hasPassword)
-  const [passwordCookie, updatePasswordCookie] = useCookie(`notes-${path}`, false)
+  const [passwordCookie] = useCookie(`notes-${path}`, false)
 
   // Change App Title
   useEffect(() => { dispatch(setTitle('Markdown Preview')) }, [])
