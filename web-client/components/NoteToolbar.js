@@ -130,10 +130,10 @@ const NoteToolbar = ({ path, note, password, updatePassword }) => {
 
   const renderSpellcheckItem = () => {
     if (spellcheck) {
-      return <ToolbarItem icon={<TextFormat />} onClick={onSpellcheckTogglePress} />
+      return <ToolbarItem icon={<TextFormat />} tooltip="Disable Spellcheck" onClick={onSpellcheckTogglePress} />
     }
 
-    return <ToolbarItem icon={<Spellcheck />} onClick={onSpellcheckTogglePress} />
+    return <ToolbarItem icon={<Spellcheck />} tooltip="Enable Spellcheck" onClick={onSpellcheckTogglePress} />
   }
 
   const handleChangeNotePassword = async (event) => {
@@ -287,10 +287,10 @@ const NoteToolbar = ({ path, note, password, updatePassword }) => {
             <ToolbarItem icon={<Code />} title="Code" onClick={onCodeViewPress} />
             <ToolbarItem icon={<Pageview />} title="Markdown" onClick={onMarkdownViewPress} />
             <Divider className={classes.divider} orientation="vertical" flexItem light />
-            <ToolbarItem icon={<SaveAlt />} disabled={!note.text} onClick={onDownloadPress} />
-            <ToolbarItem icon={<FileCopy />} disabled={!note.text} onClick={onCopyPress} />
+            <ToolbarItem icon={<SaveAlt />} tooltip="Download" disabled={!note.text} onClick={onDownloadPress} />
+            <ToolbarItem icon={<FileCopy />} tooltip="Copy" disabled={!note.text} onClick={onCopyPress} />
             {renderSpellcheckItem()}
-            <ToolbarItem icon={<Create />} onClick={onChangeUrlPress} />
+            <ToolbarItem icon={<Create />} tooltip="Change Url" onClick={onChangeUrlPress} />
           </Toolbar>
         </AppBar>
       </Box>

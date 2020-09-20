@@ -5,6 +5,7 @@ import PropTypes from 'prop-types'
 import Box from '@material-ui/core/Box'
 import Typography from '@material-ui/core/Typography'
 import IconButton from '@material-ui/core/IconButton'
+import Tooltip from '@material-ui/core/Tooltip'
 
 // Utils
 import { makeStyles } from '@material-ui/core/styles'
@@ -20,15 +21,17 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-const ToolbarItem = ({ title, icon, onClick, disabled }) => {
+const ToolbarItem = ({ title, icon, onClick, disabled, tooltip }) => {
   const classes = useStyles()
 
   if (!title) {
     return (
       <Box className={classes.toolbarMenuItem}>
-        <IconButton edge="start" color="inherit" aria-label="menu" disabled={disabled} onClick={onClick}>
-          {icon}
-        </IconButton>
+        <Tooltip title={tooltip} aria-label={tooltip} arrow>
+          <IconButton edge="start" color="inherit" aria-label="menu" disabled={disabled} onClick={onClick}>
+            {icon}
+          </IconButton>
+        </Tooltip>
       </Box>
     )
   }
@@ -49,7 +52,8 @@ ToolbarItem.propTypes = {
   icon: PropTypes.node.isRequired,
   title: PropTypes.string,
   onClick: PropTypes.func,
-  disabled: PropTypes.bool
+  disabled: PropTypes.bool,
+  tooltip: PropTypes.string
 }
 
 ToolbarItem.defaultProps = {
