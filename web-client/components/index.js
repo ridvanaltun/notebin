@@ -10,6 +10,7 @@ import NotePaper from './NotePaper'
 import CodePreviewToolbar from './CodePreviewToolbar'
 import LoadingOverlay from './LoadingOverlay'
 import PasswordHandling from './PasswordHandling'
+import BackupHandling from './BackupHandling'
 
 export {
   AppBar,
@@ -23,5 +24,6 @@ export {
   NotePaper,
   CodePreviewToolbar,
   LoadingOverlay,
-  PasswordHandling
+  PasswordHandling,
+  BackupHandling
 }
