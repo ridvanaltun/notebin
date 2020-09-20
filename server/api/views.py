@@ -187,7 +187,7 @@ def login(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['DELETE'])
+@api_view(['POST'])
 def logout(request):
     body_unicode = request.body.decode('utf-8')
     body = json.loads(body_unicode)

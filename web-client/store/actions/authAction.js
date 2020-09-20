@@ -47,9 +47,7 @@ export const logout = (refreshToken) => async dispatch => {
     type: types.LOGOUT_BEGIN
   })
   try {
-    await axios.delete(`${process.env.API_BASE_URL}/logout`, {
-      data: { refresh: refreshToken }
-    })
+    await axios.post(`${process.env.API_BASE_URL}/logout`, { refresh: refreshToken })
     dispatch({
       type: types.LOGOUT_SUCCESS
     })
