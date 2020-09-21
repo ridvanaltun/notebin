@@ -19,6 +19,7 @@ urlpatterns = [
     path('register', views.register, name='register'),
     path('password', views.password, name='password'),
     path('trackings', views.trackings, name='trackings'),
+    path('trackings/<str:path>', views.tracking, name='tracking'),
     path('backups', views.backups, name='backups'),
     path('backups/<str:uuid>', views.backup, name='backup'),
 ]

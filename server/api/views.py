@@ -244,7 +244,7 @@ def password(request):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['GET', 'POST', 'DELETE'])
+@api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
 def trackings(request):
     if request.method == 'GET':
@@ -273,29 +273,26 @@ def trackings(request):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    elif request.method == 'DELETE':
-        serializer = RemoveTrackingSerializer(data=request.data)
 
-        if serializer.is_valid():
-            path = serializer.validated_data['path']
-            note = Note.objects.filter(path=path).first()
-            is_user_has_tracking = Tracking.objects.filter(note=note, user=request.user).exists()
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def tracking(request, path):
+    if request.method == 'DELETE':
+        note = Note.objects.filter(path=path).first()
+        is_user_has_tracking = Tracking.objects.filter(note=note, user=request.user).exists()
 
-            if is_user_has_tracking:
-                t = Tracking.objects.filter(note=note, user=request.user).first()
-                t.delete()
-                return Response(status=status.HTTP_204_NO_CONTENT)
-            else:
-                return Response({
-                    "path": [
-                        "Tracking not founded."
-                    ]
-                }, status=status.HTTP_404_NOT_FOUND)
+        if is_user_has_tracking:
+            t = Tracking.objects.filter(note=note, user=request.user).first()
+            t.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
         else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response({
+                "path": [
+                    "Tracking not founded."
+                ]
+            }, status=status.HTTP_404_NOT_FOUND)
 
-
-@api_view(['GET', 'POST', 'DELETE'])
+@api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
 def backups(request):
     if request.method == 'GET':
@@ -315,28 +312,8 @@ def backups(request):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    elif request.method == 'DELETE':
-        serializer = DeleteBackupSerializer(data=request.data)
 
-        if serializer.is_valid():
-            unique_id = serializer.validated_data['unique_id']
-            is_backup_exist = request.user.backups.filter(unique_id=unique_id).exists()
-
-            if is_backup_exist:
-                b = request.user.backups.filter(unique_id=unique_id).first()
-                b.delete()
-                return Response(status=status.HTTP_204_NO_CONTENT)
-            else:
-                return Response({
-                    "unique_id": [
-                        "Backup not founded."
-                    ]
-                }, status=status.HTTP_404_NOT_FOUND)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-@api_view(['GET'])
+@api_view(['GET', 'DELETE'])
 @permission_classes([IsAuthenticated])
 def backup(request, uuid):
     try:
@@ -351,3 +328,12 @@ def backup(request, uuid):
     if request.method == 'GET':
         serializer = BackupSerializer(backup)
         return Response(serializer.data)
+
+    elif request.method == 'DELETE':
+        is_backup_exist = request.user.backups.filter(unique_id=uuid).exists()
+        if is_backup_exist:
+            b = request.user.backups.filter(unique_id=uuid).first()
+            b.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response(status=status.HTTP_404_NOT_FOUND)

@@ -34,7 +34,7 @@ import { DeleteForever, VpnKey, Timeline, Backup, Settings, ExpandMore, Search, 
 // Utils
 import { useRouter } from 'next/router'
 import { makeStyles, useTheme } from '@material-ui/core/styles'
-import { withUser, apiClient, capitalizeFirstLetter, timeAgo } from '../utils'
+import { withUser, apiClient, capitalizeFirstLetter, timeAgo, openInNewTab } from '../utils'
 
 // Redux
 import { useSelector, useDispatch } from 'react-redux'
@@ -124,31 +124,114 @@ const Me = () => {
   const [currPasswordErr, setCurrPasswordErr] = useState('')
   const [newPasswordErr, setNewPasswordErr] = useState('')
 
+  //
+  // Note Tracking Actions
+  //
+
+  const onNoteTrackingDownloadPress = (event, row) => {
+    console.log(row)
+  }
+
+  const onNoteTrackingBackupPress = (event, row) => {
+    console.log(row)
+  }
+
+  const onNoteTrackingDeletePress = (oldData) => {
+    return new Promise((resolve, reject) => {
+      apiClient({
+        method: 'delete',
+        url: `/trackings/${oldData.path}`
+      }).then(() => {
+        setTimeout(() => {
+          resolve()
+          setNoteTrackingTable((prevState) => {
+            const data = [...prevState.data]
+            data.splice(data.indexOf(oldData), 1)
+            return { ...prevState, data }
+          })
+        }, 600)
+      }).catch(error => {
+        toast.error('Tracking did not delete. An error occured!', { autoClose: false })
+        reject(error)
+      })
+    })
+  }
+
+  //
+  // Note Backup Actions
+  //
+
+  const onBackupViewPress = (event, row) => {
+    openInNewTab(`/backups/${row.id}`)
+  }
+
+  const onBackupDeletePress = (oldData) => {
+    return new Promise((resolve, reject) => {
+      apiClient({
+        method: 'delete',
+        url: `/backups/${oldData.id}`
+      }).then(() => {
+        setTimeout(() => {
+          resolve()
+          setNoteBackupsTable((prevState) => {
+            const data = [...prevState.data]
+            data.splice(data.indexOf(oldData), 1)
+            return { ...prevState, data }
+          })
+        }, 600)
+      }).catch(error => {
+        toast.error('Backup did not delete. An error occured!', { autoClose: false })
+        reject(error)
+      })
+    })
+  }
+
+  // Custom Columns
+  const renderBackupIdColumn = (rowData) => {
+    return (
+      <Typography>
+        {rowData.id.substring(0, 8) + ' ...'}
+      </Typography>
+    )
+  }
+
+  const renderTrackingPathColumn = (rowData) => {
+    return (
+      <Link href={`/${rowData.path}`}>
+        <a target="_blank">{`${rowData.path}`}</a>
+      </Link>
+    )
+  }
+
+  const renderBackupOrginalUrlColumn = (rowData) => {
+    return (
+      <Link href={`/${rowData.originalUrl}`}>
+        <a target="_blank">{`${rowData.originalUrl}`}</a>
+      </Link>
+    )
+  }
+
   // Table States
   const [noteTrackingTable, setNoteTrackingTable] = useState({
     columns: [
-      { title: 'Path', field: 'path' },
-      { title: 'Last Updated', field: 'lastUpdated' },
-      { title: 'Password', field: 'password', type: 'boolean' },
-      { title: 'Raw Path', field: 'rawPath', hidden: 'true', searchable: true }
+      { field: 'path', title: 'Path', render: renderTrackingPathColumn },
+      { field: 'lastUpdated', title: 'Last Updated' },
+      { field: 'password', title: 'Password', type: 'boolean' },
+      { field: 'rawPath', title: 'Raw Path', hidden: true, searchable: true }
     ],
     actions: [
-      { icon: () => <Backup/>, onClick: (event, row) => { console.log(row) }, tooltip: 'Backup' },
-      { icon: () => <SaveAlt/>, onClick: (event, row) => { console.log(row) }, tooltip: 'Download' }
+      { icon: () => <Backup/>, onClick: onNoteTrackingBackupPress, tooltip: 'Backup' },
+      { icon: () => <SaveAlt/>, onClick: onNoteTrackingDownloadPress, tooltip: 'Download' }
     ],
     data: [
       {
-        path: <Link href="/hello">
-          <a target="_blank">hello</a>
-        </Link>,
+        path: 'hello',
         lastUpdated: timeAgo(new Date('2015-03-25')),
         password: false,
         rawPath: 'hello'
       },
       {
-        path: <Link href="/hello2">
-          <a target="_blank">hello2</a>
-        </Link>,
+        path: 'hello2',
         lastUpdated: timeAgo(new Date('2018-03-25')),
         password: true,
         rawPath: 'hello2'
@@ -157,16 +240,16 @@ const Me = () => {
   })
   const [noteBackupsTable, setNoteBackupsTable] = useState({
     columns: [
-      { title: 'Unique ID', field: 'id' },
-      { title: 'Original URL', field: 'originalUrl' },
-      { title: 'Last Backup', field: 'lastBackup' }
+      { field: 'id', title: 'Unique ID', render: renderBackupIdColumn },
+      { field: 'originalUrl', title: 'Original URL', render: renderBackupOrginalUrlColumn },
+      { field: 'lastBackup', title: 'Last Backup' }
     ],
     actions: [
-      { icon: () => <Search/>, onClick: (event, row) => { router.push(`/backup/${row.id}`) }, tooltip: 'View' }
+      { icon: () => <Search/>, onClick: onBackupViewPress, tooltip: 'View' }
     ],
     data: [
-      { id: 'bk-9b57b2310b', originalUrl: 'heyhey', lastBackup: timeAgo(new Date('2019-03-25')) },
-      { id: 'bk-1057jasdh6', originalUrl: 'hoyhoy', lastBackup: timeAgo(new Date('2020-03-25')) }
+      { id: '9b57b2310b', originalUrl: 'heyhey', lastBackup: timeAgo(new Date('2019-03-25')) },
+      { id: '1057jasdh6', originalUrl: 'hoyhoy', lastBackup: timeAgo(new Date('2020-03-25')) }
     ]
   })
 
@@ -488,17 +571,7 @@ const Me = () => {
         actions={noteTrackingTable.actions}
         data={noteTrackingTable.data}
         editable={{
-          onRowDelete: (oldData) =>
-            new Promise((resolve) => {
-              setTimeout(() => {
-                resolve()
-                setNoteTrackingTable((prevState) => {
-                  const data = [...prevState.data]
-                  data.splice(data.indexOf(oldData), 1)
-                  return { ...prevState, data }
-                })
-              }, 600)
-            })
+          onRowDelete: onNoteTrackingDeletePress
         }}
       />
     )
@@ -517,17 +590,7 @@ const Me = () => {
           actionsColumnIndex: -1
         }}
         editable={{
-          onRowDelete: (oldData) =>
-            new Promise((resolve) => {
-              setTimeout(() => {
-                resolve()
-                setNoteBackupsTable((prevState) => {
-                  const data = [...prevState.data]
-                  data.splice(data.indexOf(oldData), 1)
-                  return { ...prevState, data }
-                })
-              }, 600)
-            })
+          onRowDelete: onBackupDeletePress
         }}
       />
     )
