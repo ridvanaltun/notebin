@@ -115,21 +115,6 @@ class TrackingSerializer(serializers.ModelSerializer):
         fields = ['note']
 
 
-class CreateTrackingSerializer(serializers.Serializer):
-    path = serializers.CharField(required=True)
-
-    def validate_path(self, value):
-        """
-        Check that the path is exists
-        """
-        n = Note.objects.filter(path=value).exists()
-
-        if n is False:
-            raise serializers.ValidationError("Note not exists.")
-
-        return value
-
-
 class BackupSerializer(serializers.ModelSerializer):
     class Meta:
         model = Backup

@@ -147,6 +147,22 @@ def note_has_password(request, path):
         else:
             return Response('KO')
 
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def note_info(request, path):
+    try:
+        note = Note.objects.get(path=path)
+    except Note.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'GET':
+        is_user_has_tracking = Tracking.objects.filter(note=note, user=request.user).exists()
+        return Response({
+            'is_tracked': is_user_has_tracking
+        })
+
+
 @api_view(['GET', 'PATCH', 'DELETE'])
 @permission_classes([IsAuthenticated])
 def me(request):
@@ -244,7 +260,7 @@ def password(request):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['GET', 'POST'])
+@api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def trackings(request):
     if request.method == 'GET':
@@ -252,35 +268,17 @@ def trackings(request):
         serializer = TrackingSerializer(trackings,  many=True)
         return Response(serializer.data)
 
-    elif request.method == 'POST':
-        serializer = CreateTrackingSerializer(data=request.data)
 
-        if serializer.is_valid():
-            path = serializer.validated_data['path']
-            note = Note.objects.filter(path=path).first()
-            is_user_has_tracking = Tracking.objects.filter(note=note, user=request.user).exists()
-
-            if is_user_has_tracking:
-                return Response({
-                    "path": [
-                        "Tracking already exist."
-                    ]
-                }, status=status.HTTP_409_CONFLICT)
-            else:
-                t = Tracking(user=request.user, note=note)
-                t.save()
-                return Response(status=status.HTTP_201_CREATED)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-@api_view(['DELETE'])
+@api_view(['DELETE', 'POST'])
 @permission_classes([IsAuthenticated])
 def tracking(request, path):
-    if request.method == 'DELETE':
+    try:
         note = Note.objects.filter(path=path).first()
         is_user_has_tracking = Tracking.objects.filter(note=note, user=request.user).exists()
+    except Note.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
 
+    if request.method == 'DELETE':
         if is_user_has_tracking:
             t = Tracking.objects.filter(note=note, user=request.user).first()
             t.delete()
@@ -291,6 +289,18 @@ def tracking(request, path):
                     "Tracking not founded."
                 ]
             }, status=status.HTTP_404_NOT_FOUND)
+
+    elif request.method == 'POST':
+        if is_user_has_tracking:
+            return Response({
+                "path": [
+                    "Tracking already exist."
+                ]
+            }, status=status.HTTP_409_CONFLICT)
+        else:
+            t = Tracking(user=request.user, note=note)
+            t.save()
+            return Response(status=status.HTTP_201_CREATED)
 
 
 @api_view(['GET', 'POST'])

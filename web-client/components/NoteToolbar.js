@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import copy from 'copy-to-clipboard'
 import { toast } from 'react-toastify'
@@ -48,18 +48,32 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-const NoteToolbar = ({ path, note, password, updatePassword }) => {
+const NoteToolbar = ({ path, note, password, updatePassword, spellcheck, setSpellcheck }) => {
   const classes = useStyles()
 
   // States
-  const [spellcheck, setSpellcheck] = useState(false)
   const [passwordOptionsModal, setPasswordOptionsModal] = useState(false)
   const [changeUrlModal, setChangeUrlModal] = useState(false)
   const [newNotePassword, setNewNotePassword] = useState('')
   const [newURL, setNewURL] = useState(path)
+  const [isTracked, setIsTracked] = useState(false)
 
   // Redux States
-  const { user } = useSelector(state => state.auth)
+  const { user, accessToken } = useSelector(state => state.auth)
+
+  // todo: note info for user and bind it to note object
+  // we need is_tracking info
+  useEffect(() => {
+    async function fetchNoteDetailsForUser () {
+      const res = await apiClient({
+        method: 'get',
+        url: `/notes/${path}/info`
+      })
+
+      if (res.data.is_tracked) setIsTracked(true)
+    }
+    if (accessToken) fetchNoteDetailsForUser()
+  }, [])
 
   const onCodeViewPress = () => {
     openInNewTab(`/code/${path}`)
@@ -79,11 +93,44 @@ const NoteToolbar = ({ path, note, password, updatePassword }) => {
   }
 
   const onTrackTogglePress = () => {
-    //
+    if (isTracked) {
+      apiClient({
+        method: 'delete',
+        url: `/trackings/${path}`
+      }).then(() => {
+        setIsTracked(false)
+        toast.info('Untracked', { autoClose: 1000 })
+      // eslint-disable-next-line handle-callback-err
+      }).catch(error => {
+        toast.error('Tracking did not delete. An error occured!', { autoClose: false })
+      })
+    } else {
+      apiClient({
+        method: 'post',
+        url: `/trackings/${path}`
+      }).then(() => {
+        setIsTracked(true)
+        toast.info('Tracked', { autoClose: 1000 })
+      // eslint-disable-next-line handle-callback-err
+      }).catch(error => {
+        toast.error('Tracking did not add. An error occured!', { autoClose: false })
+      })
+    }
   }
 
-  const onArchivePress = () => {
-    //
+  const onBackupPress = () => {
+    apiClient({
+      method: 'post',
+      url: '/backups',
+      data: {
+        path
+      }
+    }).then(() => {
+      toast.info('Backed Up', { autoClose: 1000 })
+      // eslint-disable-next-line handle-callback-err
+    }).catch(error => {
+      toast.error('Backup could not create. An error occured!', { autoClose: false })
+    })
   }
 
   const onChangeUrlPress = () => {
@@ -117,7 +164,7 @@ const NoteToolbar = ({ path, note, password, updatePassword }) => {
   }
 
   const renderTrackItem = () => {
-    if (note.is_tracked) {
+    if (isTracked) {
       return <ToolbarItem icon={<Close />} disabled={!(user.username)} title="Untrack" onClick={onTrackTogglePress} />
     }
 
@@ -277,7 +324,7 @@ const NoteToolbar = ({ path, note, password, updatePassword }) => {
         <AppBar position="static">
           <Toolbar variant="dense" className={classes.toolbar}>
             {renderTrackItem()}
-            <ToolbarItem icon={<Archive />} disabled={!(user.username)} title="Archive" onClick={onArchivePress} />
+            <ToolbarItem icon={<Archive />} disabled={!(user.username)} title="Archive" onClick={onBackupPress} />
             {renderLockItem()}
             <Divider className={classes.divider} orientation="vertical" flexItem light />
             <ToolbarItem icon={<Code />} title="Code" onClick={onCodeViewPress} />
@@ -303,7 +350,9 @@ NoteToolbar.propTypes = {
     PropTypes.bool
   ]),
   note: PropTypes.object.isRequired,
-  updatePassword: PropTypes.func.isRequired
+  updatePassword: PropTypes.func.isRequired,
+  setSpellcheck: PropTypes.func.isRequired,
+  spellcheck: PropTypes.bool.isRequired
 }
 
 export default NoteToolbar

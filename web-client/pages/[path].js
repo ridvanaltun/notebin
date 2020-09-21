@@ -20,6 +20,7 @@ const Note = ({ path, noteInfo, hasPassword }) => {
   // States
   const [note, setNote] = useState(noteInfo)
   const [loading, setLoading] = useState(false)
+  const [spellcheck, setSpellcheck] = useState(false)
   const [handlingPassword, setHandlingPassword] = useState(hasPassword)
   const [passwordCookie, updatePasswordCookie] = useCookie(`notes-${path}`, false)
 
@@ -97,8 +98,8 @@ const Note = ({ path, noteInfo, hasPassword }) => {
 
   return (
     <>
-      <NoteToolbar path={path} note={note} password={passwordCookie} updatePassword={updatePasswordCookie} />
-      <NotePaper value={note.text} onChange={handleNoteChange} />
+      <NoteToolbar path={path} note={note} password={passwordCookie} updatePassword={updatePasswordCookie} spellcheck={spellcheck} setSpellcheck={setSpellcheck} />
+      <NotePaper value={note.text} onChange={handleNoteChange} inputProps={{ spellCheck: spellcheck }} />
       <LoadingOverlay loading={loading} />
     </>
   )
