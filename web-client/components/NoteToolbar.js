@@ -302,7 +302,10 @@ const NoteToolbar = ({ path, note, password, updatePassword }) => {
 
 NoteToolbar.propTypes = {
   path: PropTypes.string.isRequired,
-  password: PropTypes.string,
+  password: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.bool
+  ]),
   note: PropTypes.object.isRequired,
   updatePassword: PropTypes.func.isRequired
 }
