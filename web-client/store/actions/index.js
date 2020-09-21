@@ -1,8 +1,8 @@
 // Actions
 import authAction from './authAction'
-import noteAction from './noteAction'
+import appAction from './appAction'
 
 export default {
-  authAction,
-  noteAction
+  appAction,
+  authAction
 }
