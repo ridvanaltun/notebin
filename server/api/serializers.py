@@ -142,6 +142,12 @@ class BackupListSerializer(serializers.ModelSerializer):
         fields = ['created_at', 'updated_at', 'original_path', 'unique_id']
 
 
+class BackupSerializerForCreate(serializers.ModelSerializer):
+    class Meta:
+        model = Backup
+        fields = ['created_at', 'updated_at', 'original_path', 'unique_id']
+
+
 class CreateBackupSerializer(serializers.Serializer):
     path = serializers.CharField(required=True)
 

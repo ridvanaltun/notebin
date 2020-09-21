@@ -29,10 +29,9 @@ import AccordionSummary from '@material-ui/core/AccordionSummary'
 import { TabPanel, MaterialTable, PasswordInput, Typography } from '../components'
 
 // Icons
-import { DeleteForever, VpnKey, Timeline, Backup, Settings, ExpandMore, Search, SaveAlt } from '@material-ui/icons'
+import { DeleteForever, VpnKey, Timeline, Backup, Settings, ExpandMore, Search } from '@material-ui/icons'
 
 // Utils
-import { useRouter } from 'next/router'
 import { makeStyles, useTheme } from '@material-ui/core/styles'
 import { withUser, apiClient, capitalizeFirstLetter, timeAgo, openInNewTab } from '../utils'
 
@@ -100,7 +99,6 @@ const useStyles = makeStyles((theme) => ({
 const Me = () => {
   const classes = useStyles()
   const theme = useTheme()
-  const router = useRouter()
   const dispatch = useDispatch()
 
   // States
@@ -128,12 +126,21 @@ const Me = () => {
   // Note Tracking Actions
   //
 
-  const onNoteTrackingDownloadPress = (event, row) => {
-    console.log(row)
-  }
-
-  const onNoteTrackingBackupPress = (event, row) => {
-    console.log(row)
+  const onNoteTrackingBackupPress = async (event, row) => {
+    try {
+      const res = await apiClient({
+        method: 'post',
+        url: '/backups',
+        data: {
+          path: row.path
+        }
+      })
+      const b = { ...res.data, updated_at: timeAgo(res.data.updated_at), created_at: timeAgo(res.data.created_at) }
+      noteBackupsTable.data.push(b)
+      toast.info('Backup created!')
+    } catch (error) {
+      toast.error('Backup could not create. An error occured!', { autoClose: false })
+    }
   }
 
   const onNoteTrackingDeletePress = (oldData) => {
@@ -162,14 +169,14 @@ const Me = () => {
   //
 
   const onBackupViewPress = (event, row) => {
-    openInNewTab(`/backups/${row.id}`)
+    openInNewTab(`/backups/${row.unique_id}`)
   }
 
   const onBackupDeletePress = (oldData) => {
     return new Promise((resolve, reject) => {
       apiClient({
         method: 'delete',
-        url: `/backups/${oldData.id}`
+        url: `/backups/${oldData.unique_id}`
       }).then(() => {
         setTimeout(() => {
           resolve()
@@ -190,7 +197,7 @@ const Me = () => {
   const renderBackupIdColumn = (rowData) => {
     return (
       <Typography>
-        {rowData.id.substring(0, 8) + ' ...'}
+        {rowData.unique_id.substring(0, 8) + ' ...'}
       </Typography>
     )
   }
@@ -203,11 +210,19 @@ const Me = () => {
     )
   }
 
-  const renderBackupOrginalUrlColumn = (rowData) => {
+  const renderBackupOrginalPathColumn = (rowData) => {
     return (
-      <Link href={`/${rowData.originalUrl}`}>
-        <a target="_blank">{`${rowData.originalUrl}`}</a>
+      <Link href={`/${rowData.original_path}`}>
+        <a target="_blank">{`${rowData.original_path}`}</a>
       </Link>
+    )
+  }
+
+  const renderBackupDate = (rowData) => {
+    return (
+      <Typography>
+        {timeAgo(rowData.updated_at)}
+      </Typography>
     )
   }
 
@@ -220,8 +235,7 @@ const Me = () => {
       { field: 'rawPath', title: 'Raw Path', hidden: true, searchable: true }
     ],
     actions: [
-      { icon: () => <Backup/>, onClick: onNoteTrackingBackupPress, tooltip: 'Backup' },
-      { icon: () => <SaveAlt/>, onClick: onNoteTrackingDownloadPress, tooltip: 'Download' }
+      { icon: () => <Backup/>, onClick: onNoteTrackingBackupPress, tooltip: 'Backup' }
     ],
     data: [
       {
@@ -240,16 +254,16 @@ const Me = () => {
   })
   const [noteBackupsTable, setNoteBackupsTable] = useState({
     columns: [
-      { field: 'id', title: 'Unique ID', render: renderBackupIdColumn },
-      { field: 'originalUrl', title: 'Original URL', render: renderBackupOrginalUrlColumn },
-      { field: 'lastBackup', title: 'Last Backup' }
+      { field: 'unique_id', title: 'Unique ID', render: renderBackupIdColumn },
+      { field: 'original_path', title: 'Original URL', render: renderBackupOrginalPathColumn },
+      { field: 'updated_at', title: 'Last Backup', renderBackupDate }
     ],
     actions: [
       { icon: () => <Search/>, onClick: onBackupViewPress, tooltip: 'View' }
     ],
     data: [
-      { id: '9b57b2310b', originalUrl: 'heyhey', lastBackup: timeAgo(new Date('2019-03-25')) },
-      { id: '1057jasdh6', originalUrl: 'hoyhoy', lastBackup: timeAgo(new Date('2020-03-25')) }
+      { unique_id: '9b57b2310b', original_path: 'heyhey', updated_at: timeAgo(new Date('2019-03-25')) },
+      { unique_id: '1057jasdh6', original_path: 'hoyhoy', updated_at: timeAgo(new Date('2020-03-25')) }
     ]
   })
 

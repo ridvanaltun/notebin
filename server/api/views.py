@@ -292,6 +292,7 @@ def tracking(request, path):
                 ]
             }, status=status.HTTP_404_NOT_FOUND)
 
+
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
 def backups(request):
@@ -308,7 +309,8 @@ def backups(request):
             note = Note.objects.filter(path=path).first()
             b = Backup(user=request.user, original_path=path, text=note.text)
             b.save()
-            return Response(status=status.HTTP_201_CREATED)
+            serializer = BackupSerializerForCreate(b)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
