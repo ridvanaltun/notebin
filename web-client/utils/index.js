@@ -6,5 +6,6 @@ import timeAgo from './timeAgo'
 import useLocalStorage from './useLocalStorage'
 import useCookie from './useCookie'
 import openInNewTab from './openInNewTab'
+import downloadPage from './downloadPage'
 
-export { withGuest, withUser, apiClient, capitalizeFirstLetter, timeAgo, useLocalStorage, useCookie, openInNewTab }
+export { withGuest, withUser, apiClient, capitalizeFirstLetter, timeAgo, useLocalStorage, useCookie, openInNewTab, downloadPage }

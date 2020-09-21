@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 import copy from 'copy-to-clipboard'
-import { jsPDF as PDF } from 'jspdf'
 import { toast } from 'react-toastify'
 
 // Components
@@ -31,7 +30,7 @@ import { useSelector } from 'react-redux'
 
 // Utils
 import { makeStyles } from '@material-ui/core/styles'
-import { apiClient, openInNewTab } from '../utils'
+import { apiClient, openInNewTab, downloadPage } from '../utils'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -71,10 +70,7 @@ const NoteToolbar = ({ path, note, password, updatePassword }) => {
   }
 
   const onDownloadPress = () => {
-    const doc = new PDF()
-    doc.setFontSize(16)
-    doc.text(note.text, 10, 10)
-    doc.save(`${path}.pdf`)
+    downloadPage(note.text)
   }
 
   const onCopyPress = () => {
