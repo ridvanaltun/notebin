@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react'
-import PropTypes from 'prop-types'
 
 // Custom Components
 import { NotePaper, Blank, BackupHandling } from '../../components'
@@ -9,12 +8,15 @@ import { useDispatch } from 'react-redux'
 import { setTitle } from '../../store/actions/appAction'
 
 // Utils
-import { apiClient } from '../../utils'
+import { useRouter } from 'next/router'
+import { apiClient, withUser } from '../../utils'
 
-const Backup = ({ uuid }) => {
+const Backup = () => {
   const dispatch = useDispatch()
+  const router = useRouter()
 
   // States
+  const { uuid } = router.query
   const [backup, setBackup] = useState(null)
   const [notFounded, setNotFounded] = useState(false)
   const [loading, setLoading] = useState(true)
@@ -32,13 +34,17 @@ const Backup = ({ uuid }) => {
         })
         setBackup(res.data)
       } catch (error) {
+        // request correct but note not found or the backup not belong to the user
         if (error.response && error.response.status === 404) setNotFounded(true)
+
+        // bad request like uuid not valid
+        if (error.response && error.response.status === 400) setNotFounded(true)
       } finally {
         setLoading(false)
       }
     }
-    fetchBackup()
-  }, [])
+    if (uuid) fetchBackup()
+  }, [uuid])
 
   if (loading) return <BackupHandling/>
 
@@ -51,14 +57,4 @@ const Backup = ({ uuid }) => {
   )
 }
 
-Backup.getInitialProps = async (ctx) => {
-  const { uuid } = ctx.query
-
-  return { uuid }
-}
-
-Backup.propTypes = {
-  uuid: PropTypes.string
-}
-
-export default Backup
+export default withUser(Backup)
