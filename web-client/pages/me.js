@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import useMediaQuery from '@material-ui/core/useMediaQuery'
 import Link from 'next/link'
 import { toast } from 'react-toastify'
 
@@ -96,6 +97,16 @@ const useStyles = makeStyles((theme) => ({
   },
   disabledSection: {
     color: '#c6c6c6'
+  },
+  hide: {
+    display: 'none'
+  },
+  smallRoot: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  smallTabsCard: {
   }
 }))
 
@@ -103,6 +114,7 @@ const Me = () => {
   const classes = useStyles()
   const theme = useTheme()
   const dispatch = useDispatch()
+  const isPhoneOrTablet = useMediaQuery('(max-width:768px)')
 
   // States
   const [tabIndex, setTabIndex] = useState(0)
@@ -693,11 +705,11 @@ const Me = () => {
   }
 
   return (
-    <Box className={classes.root}>
-      <Paper variant="outlined" className={classes.userProfileCard}>
+    <Box className={isPhoneOrTablet ? classes.smallRoot : classes.root}>
+      <Paper variant="outlined" className={isPhoneOrTablet ? classes.hide : classes.userProfileCard}>
         {renderUserProfile()}
       </Paper>
-      <Paper variant="outlined" className={classes.tabsCard}>
+      <Paper variant="outlined" className={isPhoneOrTablet ? classes.smallTabsCard : classes.tabsCard}>
         {renderTabs()}
       </Paper>
     </Box>

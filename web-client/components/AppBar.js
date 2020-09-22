@@ -119,7 +119,7 @@ const AppBar = ({ handleDarkThemeToggle, darkState }) => {
               control={<Switch checked={darkState} onChange={(event) => {
                 handleDarkThemeToggle(event.target.checked)
               }} />}
-              label={<Typography className={classes.formControlLabel}>Dark Theme</Typography>}
+              label={<Typography className={classes.formControlLabel}>Dark Mode</Typography>}
               labelPlacement="start"
             />
           </FormGroup>
