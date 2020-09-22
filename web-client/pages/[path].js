@@ -23,7 +23,7 @@ const Note = ({ path, noteInfo, hasPassword }) => {
   const [spellcheck, setSpellcheck] = useState(false)
   const [handlingPassword, setHandlingPassword] = useState(hasPassword)
   const [passwordCookie, updatePasswordCookie] = useCookie(`notes-${path}`, false)
-  const [fontSize, updateFontSize] = useCookie('size-note', 18)
+  const [fontSize, updateFontSize] = useCookie('size-note', process.env.NOTE_DEFAULT_FONT_SIZE)
 
   // Change App Title
   useEffect(() => { dispatch(setTitle('Notebin')) }, [])

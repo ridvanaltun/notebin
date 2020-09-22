@@ -93,6 +93,9 @@ const useStyles = makeStyles((theme) => ({
   secondaryHeading: {
     fontSize: theme.typography.pxToRem(15),
     color: theme.palette.text.secondary
+  },
+  disabledSection: {
+    color: '#c6c6c6'
   }
 }))
 
@@ -370,7 +373,7 @@ const Me = () => {
             </Button>
           </form>
         </Box>
-        <Box m={5}>
+        <Box m={5} className={classes.disabledSection}>
           <Typography className={classes.heading}>Username</Typography>
           <Typography className={classes.secondaryHeading}>Change username over here</Typography>
           <form>

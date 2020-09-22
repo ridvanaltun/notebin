@@ -73,7 +73,7 @@ const CodePreview = ({ path, noteInfo, hasPassword, defaultLanguage }) => {
   return (
     <>
       <CodePreviewToolbar handleLanguageChange={handleLanguageChange} defaultLanguage={defaultLanguage} />
-      <Box bgcolor="#F0F0F0" height="100%">
+      <Box bgcolor="#000" height="100%">
         <SyntaxHighlighter
           language={language}
           showLineNumbers
