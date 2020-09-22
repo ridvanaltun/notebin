@@ -183,6 +183,22 @@ def me(request):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def me_details(request):
+    if request.method == 'GET':
+        user_serializer = UserSerializer(request.user)
+        backups = request.user.backups.all()
+        backups_serializer = BackupListSerializer(backups,  many=True)
+        trackings = request.user.trackings.all()
+        trackings_serializer = TrackingSerializer(trackings,  many=True)
+        return Response({
+            'user': user_serializer.data,
+            'backups': backups_serializer.data,
+            'trackings': trackings_serializer.data
+        })
+
+
 @api_view(['POST'])
 def login(request):
     serializer = LoginSerializer(data=request.data)

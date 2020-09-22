@@ -125,6 +125,53 @@ const Me = () => {
   const [currPasswordErr, setCurrPasswordErr] = useState('')
   const [newPasswordErr, setNewPasswordErr] = useState('')
 
+  // States for Tables
+  const [trackings, setTrackings] = useState([])
+  const [backups, setBackups] = useState([])
+
+  // Change App Title
+  useEffect(() => { dispatch(setTitle(`${user.username}'s Profile`)) }, [])
+
+  // Fetch backups and trackings in first render
+  useEffect(() => {
+    async function fetchMeDetails () {
+      try {
+        const res = await apiClient({
+          method: 'get',
+          url: '/me/details'
+        })
+
+        // collect data
+        const { backups } = res.data
+        const trackings = res.data.trackings.map(tracking => tracking.note)
+
+        // process data
+        const updatedTrackings = trackings.map(tracking => {
+          const newTracking = { ...tracking }
+          newTracking.created_at = timeAgo(newTracking.created_at)
+          newTracking.updated_at = timeAgo(newTracking.updated_at)
+
+          return newTracking
+        })
+
+        const updatedBackups = backups.map(backup => {
+          const newBackup = { ...backup }
+          newBackup.created_at = timeAgo(newBackup.created_at)
+          newBackup.updated_at = timeAgo(newBackup.updated_at)
+
+          return newBackup
+        })
+
+        setBackups(updatedBackups)
+        setTrackings(updatedTrackings)
+      } catch (error) {
+        toast.error('An error occured when page loading', { autoClose: false })
+      }
+    }
+
+    fetchMeDetails()
+  }, [])
+
   //
   // Note Tracking Actions
   //
@@ -139,7 +186,11 @@ const Me = () => {
         }
       })
       const b = { ...res.data, updated_at: timeAgo(res.data.updated_at), created_at: timeAgo(res.data.created_at) }
-      noteBackupsTable.data.push(b)
+      setBackups(prevState => {
+        const newBackupList = [...prevState]
+        newBackupList.push(b)
+        return newBackupList
+      })
       toast.info('Backup created!')
     } catch (error) {
       toast.error('Backup could not create. An error occured!', { autoClose: false })
@@ -154,10 +205,10 @@ const Me = () => {
       }).then(() => {
         setTimeout(() => {
           resolve()
-          setNoteTrackingTable((prevState) => {
-            const data = [...prevState.data]
-            data.splice(data.indexOf(oldData), 1)
-            return { ...prevState, data }
+          setTrackings((prevState) => {
+            const newTrackingList = [...prevState]
+            newTrackingList.splice(newTrackingList.indexOf(oldData), 1)
+            return newTrackingList
           })
         }, 600)
       }).catch(error => {
@@ -183,10 +234,10 @@ const Me = () => {
       }).then(() => {
         setTimeout(() => {
           resolve()
-          setNoteBackupsTable((prevState) => {
-            const data = [...prevState.data]
-            data.splice(data.indexOf(oldData), 1)
-            return { ...prevState, data }
+          setBackups((prevState) => {
+            const newBackupList = [...prevState]
+            newBackupList.splice(newBackupList.indexOf(oldData), 1)
+            return newBackupList
           })
         }, 600)
       }).catch(error => {
@@ -208,7 +259,7 @@ const Me = () => {
   const renderTrackingPathColumn = (rowData) => {
     return (
       <Link href={`/${rowData.path}`}>
-        <a target="_blank">{`${rowData.path}`}</a>
+        <a target="_blank">{rowData.path.length > 8 ? `${rowData.path.substring(0, 8) + ' ...'}` : rowData.path}</a>
       </Link>
     )
   }
@@ -216,7 +267,7 @@ const Me = () => {
   const renderBackupOrginalPathColumn = (rowData) => {
     return (
       <Link href={`/${rowData.original_path}`}>
-        <a target="_blank">{`${rowData.original_path}`}</a>
+        <a target="_blank">{rowData.original_path.length > 8 ? `${rowData.original_path.substring(0, 8) + ' ...'}` : rowData.original_path}</a>
       </Link>
     )
   }
@@ -228,50 +279,6 @@ const Me = () => {
       </Typography>
     )
   }
-
-  // Table States
-  const [noteTrackingTable, setNoteTrackingTable] = useState({
-    columns: [
-      { field: 'path', title: 'Path', render: renderTrackingPathColumn },
-      { field: 'lastUpdated', title: 'Last Updated' },
-      { field: 'password', title: 'Password', type: 'boolean' },
-      { field: 'rawPath', title: 'Raw Path', hidden: true, searchable: true }
-    ],
-    actions: [
-      { icon: () => <Backup/>, onClick: onNoteTrackingBackupPress, tooltip: 'Backup' }
-    ],
-    data: [
-      {
-        path: 'hello',
-        lastUpdated: timeAgo(new Date('2015-03-25')),
-        password: false,
-        rawPath: 'hello'
-      },
-      {
-        path: 'hello2',
-        lastUpdated: timeAgo(new Date('2018-03-25')),
-        password: true,
-        rawPath: 'hello2'
-      }
-    ]
-  })
-  const [noteBackupsTable, setNoteBackupsTable] = useState({
-    columns: [
-      { field: 'unique_id', title: 'Unique ID', render: renderBackupIdColumn },
-      { field: 'original_path', title: 'Original URL', render: renderBackupOrginalPathColumn },
-      { field: 'updated_at', title: 'Last Backup', renderBackupDate }
-    ],
-    actions: [
-      { icon: () => <Search/>, onClick: onBackupViewPress, tooltip: 'View' }
-    ],
-    data: [
-      { unique_id: '9b57b2310b', original_path: 'heyhey', updated_at: timeAgo(new Date('2019-03-25')) },
-      { unique_id: '1057jasdh6', original_path: 'hoyhoy', updated_at: timeAgo(new Date('2020-03-25')) }
-    ]
-  })
-
-  // Change App Title
-  useEffect(() => { dispatch(setTitle(`${user.username}'s Profile`)) }, [])
 
   const handleAccordionChange = (panel) => (event, isExpanded) => {
     setExpanded(isExpanded ? panel : false)
@@ -584,9 +591,15 @@ const Me = () => {
           // padding: 'dense',
           actionsColumnIndex: -1
         }}
-        columns={noteTrackingTable.columns}
-        actions={noteTrackingTable.actions}
-        data={noteTrackingTable.data}
+        columns={[
+          { field: 'path', title: 'Path', render: renderTrackingPathColumn, searchable: true },
+          { field: 'updated_at', title: 'Last Updated' },
+          { field: 'has_password', title: 'Password', type: 'boolean' }
+        ]}
+        actions={[
+          { icon: () => <Backup/>, onClick: onNoteTrackingBackupPress, tooltip: 'Backup' }
+        ]}
+        data={trackings}
         editable={{
           onRowDelete: onNoteTrackingDeletePress
         }}
@@ -599,9 +612,15 @@ const Me = () => {
       <MaterialTable
         title="Your Note Backups"
         style={materialTableStyle}
-        columns={noteBackupsTable.columns}
-        actions={noteBackupsTable.actions}
-        data={noteBackupsTable.data}
+        columns={[
+          { field: 'unique_id', title: 'Unique ID', render: renderBackupIdColumn },
+          { field: 'original_path', title: 'Original URL', render: renderBackupOrginalPathColumn },
+          { field: 'updated_at', title: 'Last Backup', renderBackupDate }
+        ]}
+        actions={[
+          { icon: () => <Search/>, onClick: onBackupViewPress, tooltip: 'View' }
+        ]}
+        data={backups}
         options={{
           // padding: 'dense',
           actionsColumnIndex: -1
