@@ -30,8 +30,9 @@ import { Check, Close, Code, FileCopy, Archive, Lock, LockOpen, Pageview, SaveAl
 import { useSelector } from 'react-redux'
 
 // Utils
+import { useRouter } from 'next/router'
 import { makeStyles } from '@material-ui/core/styles'
-import { apiClient, openInNewTab, downloadPage } from '../utils'
+import { apiClient, openInNewTab, downloadPage, capitalizeFirstLetter } from '../utils'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -51,13 +52,14 @@ const useStyles = makeStyles((theme) => ({
 
 const NoteToolbar = ({ path, note, password, updatePassword, spellcheck, setSpellcheck, fontSize, updateFontSize }) => {
   const classes = useStyles()
+  const router = useRouter()
 
   // States
   const [passwordOptionsModal, setPasswordOptionsModal] = useState(false)
   const [changeUrlModal, setChangeUrlModal] = useState(false)
   const [changeFontSizeModal, setChangeFontSizeModal] = useState(false)
   const [newNotePassword, setNewNotePassword] = useState('')
-  const [newURL, setNewURL] = useState(path)
+  const [newPath, setNewPath] = useState(path)
   const [isTracked, setIsTracked] = useState(false)
 
   // Redux States
@@ -276,47 +278,59 @@ const NoteToolbar = ({ path, note, password, updatePassword, spellcheck, setSpel
     )
   }
 
-  // todo
   const handleChangeUrl = () => {
-    setChangeUrlModal(false)
+    apiClient({
+      method: 'patch',
+      url: `/notes/${path}`,
+      data: {
+        path: newPath
+      }
+    }, false).then(() => {
+      router.push(`/${newPath}`, undefined, { shallow: true })
+      toast.info('Note successfully moved!')
+      setChangeUrlModal(false)
+    }).catch(error => {
+      // path already in use
+      if (error.response && error.response.status === 400 && error.response.data.path) {
+        toast.error(capitalizeFirstLetter(error.response.data.path[0]), { autoClose: false })
+      }
+    })
   }
 
   const closeChangeUrlModal = () => {
     setChangeUrlModal(false)
-    setNewURL(path)
+    setNewPath(path)
   }
 
   const renderChangeUrlModal = () => {
     return (
       <Dialog open={changeUrlModal} onClose={closeChangeUrlModal} aria-labelledby="form-dialog-title">
-        <form onSubmit={handleChangeUrl}>
-          <DialogTitle id="form-dialog-title">Change URL</DialogTitle>
-          <DialogContent>
-            <DialogContentText>
-              {"You can change note's URL from here."}
-            </DialogContentText>
-            <TextField
-              autoFocus
-              variant="outlined"
-              margin="normal"
-              required
-              fullWidth
-              name="new-url"
-              label="New URL"
-              id="new-url"
-              value={newURL}
-              onChange={(event) => { setNewURL(event.target.value) }}
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={closeChangeUrlModal} color="primary">
+        <DialogTitle id="form-dialog-title">Change URL</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            {"You can change note's URL from here."}
+          </DialogContentText>
+          <TextField
+            autoFocus
+            variant="outlined"
+            margin="normal"
+            required
+            fullWidth
+            name="new-url"
+            label="New URL"
+            id="new-url"
+            value={newPath}
+            onChange={(event) => { setNewPath(event.target.value) }}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={closeChangeUrlModal} color="primary">
               Cancel
-            </Button>
-            <Button type="submit" color="primary">
+          </Button>
+          <Button onClick={handleChangeUrl} type="submit" color="primary" disabled={newPath === path}>
               Apply
-            </Button>
-          </DialogActions>
-        </form>
+          </Button>
+        </DialogActions>
       </Dialog>
     )
   }
@@ -388,7 +402,7 @@ NoteToolbar.propTypes = {
   updatePassword: PropTypes.func.isRequired,
   setSpellcheck: PropTypes.func.isRequired,
   spellcheck: PropTypes.bool.isRequired,
-  fontSize: PropTypes.number.isRequired,
+  fontSize: PropTypes.string.isRequired,
   updateFontSize: PropTypes.func.isRequired
 }
 
