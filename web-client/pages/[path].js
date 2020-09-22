@@ -23,6 +23,7 @@ const Note = ({ path, noteInfo, hasPassword }) => {
   const [spellcheck, setSpellcheck] = useState(false)
   const [handlingPassword, setHandlingPassword] = useState(hasPassword)
   const [passwordCookie, updatePasswordCookie] = useCookie(`notes-${path}`, false)
+  const [fontSize, updateFontSize] = useCookie('size-note', 18)
 
   // Change App Title
   useEffect(() => { dispatch(setTitle('Notebin')) }, [])
@@ -98,8 +99,22 @@ const Note = ({ path, noteInfo, hasPassword }) => {
 
   return (
     <>
-      <NoteToolbar path={path} note={note} password={passwordCookie} updatePassword={updatePasswordCookie} spellcheck={spellcheck} setSpellcheck={setSpellcheck} />
-      <NotePaper value={note.text} onChange={handleNoteChange} inputProps={{ spellCheck: spellcheck }} />
+      <NoteToolbar
+        path={path}
+        note={note}
+        password={passwordCookie}
+        updatePassword={updatePasswordCookie}
+        spellcheck={spellcheck}
+        setSpellcheck={setSpellcheck}
+        fontSize={fontSize}
+        updateFontSize={updateFontSize}
+      />
+      <NotePaper
+        value={note.text}
+        onChange={handleNoteChange}
+        inputProps={{ spellCheck: spellcheck }}
+        style={{ fontSize }}
+      />
       <LoadingOverlay loading={loading} />
     </>
   )

@@ -10,6 +10,7 @@ import Toolbar from '@material-ui/core/Toolbar'
 import Divider from '@material-ui/core/Divider'
 import Button from '@material-ui/core/Button'
 import TextField from '@material-ui/core/TextField'
+import Slider from '@material-ui/core/Slider'
 
 // Custom Components
 import ToolbarItem from './ToolbarItem'
@@ -23,7 +24,7 @@ import DialogContentText from '@material-ui/core/DialogContentText'
 import DialogTitle from '@material-ui/core/DialogTitle'
 
 // Icons
-import { Check, Close, Code, FileCopy, Archive, Lock, LockOpen, Pageview, SaveAlt, Spellcheck, TextFormat, Create } from '@material-ui/icons'
+import { Check, Close, Code, FileCopy, Archive, Lock, LockOpen, Pageview, SaveAlt, Spellcheck, TextFormat, Create, FormatSize } from '@material-ui/icons'
 
 // Redux
 import { useSelector } from 'react-redux'
@@ -48,12 +49,13 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-const NoteToolbar = ({ path, note, password, updatePassword, spellcheck, setSpellcheck }) => {
+const NoteToolbar = ({ path, note, password, updatePassword, spellcheck, setSpellcheck, fontSize, updateFontSize }) => {
   const classes = useStyles()
 
   // States
   const [passwordOptionsModal, setPasswordOptionsModal] = useState(false)
   const [changeUrlModal, setChangeUrlModal] = useState(false)
+  const [changeFontSizeModal, setChangeFontSizeModal] = useState(false)
   const [newNotePassword, setNewNotePassword] = useState('')
   const [newURL, setNewURL] = useState(path)
   const [isTracked, setIsTracked] = useState(false)
@@ -274,6 +276,7 @@ const NoteToolbar = ({ path, note, password, updatePassword, spellcheck, setSpel
     )
   }
 
+  // todo
   const handleChangeUrl = () => {
     setChangeUrlModal(false)
   }
@@ -318,6 +321,36 @@ const NoteToolbar = ({ path, note, password, updatePassword, spellcheck, setSpel
     )
   }
 
+  const renderChangeFontSizeModal = () => {
+    return (
+      <Dialog open={changeFontSizeModal} onClose={() => { setChangeFontSizeModal(false) }} aria-labelledby="form-dialog-title">
+        <DialogTitle id="form-dialog-title">Change Font Size</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            {'You can change font size from here.'}
+          </DialogContentText>
+          <Slider
+            style={{ marginTop: 10 }}
+            defaultValue={fontSize}
+            getAriaValueText={(value) => `${value}px`}
+            aria-labelledby="discrete-slider"
+            valueLabelDisplay="auto"
+            onChange={(event, value) => { updateFontSize(value) }}
+            step={1}
+            marks
+            min={11}
+            max={25}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => { setChangeFontSizeModal(false) }} color="primary">
+              Close
+          </Button>
+        </DialogActions>
+      </Dialog>
+    )
+  }
+
   return (
     <>
       <Box className={classes.root}>
@@ -332,6 +365,7 @@ const NoteToolbar = ({ path, note, password, updatePassword, spellcheck, setSpel
             <Divider className={classes.divider} orientation="vertical" flexItem light />
             <ToolbarItem icon={<SaveAlt />} tooltip="Download" disabled={!note.text} onClick={onDownloadPress} />
             <ToolbarItem icon={<FileCopy />} tooltip="Copy" disabled={!note.text} onClick={onCopyPress} />
+            <ToolbarItem icon={<FormatSize />} tooltip="Change Font Size" onClick={() => { setChangeFontSizeModal(true) }} />
             {renderSpellcheckItem()}
             <ToolbarItem icon={<Create />} tooltip="Change Url" onClick={onChangeUrlPress} />
           </Toolbar>
@@ -339,6 +373,7 @@ const NoteToolbar = ({ path, note, password, updatePassword, spellcheck, setSpel
       </Box>
       {renderPasswordOptionsModal()}
       {renderChangeUrlModal()}
+      {renderChangeFontSizeModal()}
     </>
   )
 }
@@ -352,7 +387,9 @@ NoteToolbar.propTypes = {
   note: PropTypes.object.isRequired,
   updatePassword: PropTypes.func.isRequired,
   setSpellcheck: PropTypes.func.isRequired,
-  spellcheck: PropTypes.bool.isRequired
+  spellcheck: PropTypes.bool.isRequired,
+  fontSize: PropTypes.number.isRequired,
+  updateFontSize: PropTypes.func.isRequired
 }
 
 export default NoteToolbar
