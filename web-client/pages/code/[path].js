@@ -71,14 +71,32 @@ const CodePreview = ({ path, noteInfo, hasPassword, defaultLanguage }) => {
   if (!note.text) return <Blank />
 
   return (
-    <Box bgcolor="#F0F0F0">
+    <>
       <CodePreviewToolbar handleLanguageChange={handleLanguageChange} defaultLanguage={defaultLanguage} />
-      <Box m={5}>
-        <SyntaxHighlighter language={language}>
+      <Box bgcolor="#F0F0F0" height="100%">
+        <SyntaxHighlighter
+          language={language}
+          showLineNumbers
+          showInlineLineNumbers
+          lineNumberStyle={{
+            color: '#fff',
+            backgroundColor: '#000',
+            marginRight: 10
+          }}
+          customStyle={{
+            margin: 0,
+            paddingTop: 20,
+            paddingBottom: 30,
+            paddingRight: 10,
+            paddingLeft: 0,
+            whiteSpace: 'break-spaces',
+            color: '#fff',
+            backgroundColor: '#000'
+          }}>
           {note.text}
         </SyntaxHighlighter>
       </Box>
-    </Box>
+    </>
   )
 }
 
