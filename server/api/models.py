@@ -12,7 +12,7 @@ class User(AbstractUser):
 
 
 class Note(models.Model):
-    text = models.TextField(default="")
+    text = models.TextField(default="", blank=True)
     path = models.CharField(max_length=50, default=uuid.uuid4, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
