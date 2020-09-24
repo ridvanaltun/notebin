@@ -12,6 +12,9 @@ python3 manage.py migrate
 # create an admin user
 python3 manage.py createsuperuser
 
+# create own your environment variable
+cp notebin/.env.example notebin/.env
+
 # run the server
 python3 manage.py runserver
 ```
