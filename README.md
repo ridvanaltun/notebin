@@ -11,6 +11,7 @@
 - NextJS
 - RESTful API
 - JWT
+- PWA
 
 ## Features
 
@@ -27,8 +28,21 @@
 - Lock any note with a password, you can unlock the note if know the password
 - Automatically save, no save button
 - Mobile responsive
-- Register, login
-- You can change your email, name and surname after registration
+- Progressive
+- User system, register and login
+- You can change your profile details and your password after registration
 - You can delete your account with your all data
 - Track notes with your track list
 - Get an immutable backup of the notes you want
+
+## PWA (Progressive Web App)
+
+To work with PWA, it is necessary to compile for production.
+
+```bash
+# build production
+$ npm run build
+
+# start production server
+$ npm run start
+```
