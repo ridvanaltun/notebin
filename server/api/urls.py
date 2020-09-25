@@ -1,5 +1,4 @@
 from django.urls import path
-from django.conf.urls import url
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView, TokenVerifyView
 
 from . import views
@@ -24,4 +23,5 @@ urlpatterns = [
     path('trackings/<str:path>', views.tracking, name='tracking'),
     path('backups', views.backups, name='backups'),
     path('backups/<str:uuid>', views.backup, name='backup'),
+    path('activate/<str:uidb64>/<str:token>', views.activate_account, name="activate"),
 ]

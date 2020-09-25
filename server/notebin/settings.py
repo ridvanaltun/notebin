@@ -16,7 +16,8 @@ import environ
 
 env = environ.Env(
     # set casting, default value
-    DEBUG=(bool, False)
+    DEBUG=(bool, False),
+    EMAIL_USE_TLS=(bool, False)
 )
 
 # reading .env file
@@ -205,3 +206,23 @@ SWAGGER_SETTINGS = {
 CORS_ORIGIN_ALLOW_ALL = True # If this is used then `CORS_ORIGIN_WHITELIST` will not have any effect
 
 CORS_ALLOW_CREDENTIALS = True
+
+# Email
+
+EMAIL_USE_TLS = env('EMAIL_USE_TLS')
+
+EMAIL_HOST = env('EMAIL_HOST')
+
+EMAIL_HOST_USER = env('EMAIL_HOST_USER')
+
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
+
+EMAIL_PORT = env('EMAIL_PORT')
+
+# Email Addresses
+
+EMAIL_ADDRESS_NO_REPLY = env('EMAIL_ADDRESS_NO_REPLY')
+
+# Front-end
+
+FRONTEND_ADDRESS = env('FRONTEND_ADDRESS')

@@ -33,3 +33,5 @@ python3 -c "from django.core.management.utils import get_random_secret_key; prin
 # you can create a jwt secret with below code
 node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
 ```
+
+For email variables you can create a fake SMTP server using [Mailtrap](https://mailtrap.io/). With Mailtrap all emails automatically forward to your Mailtrap inbox.

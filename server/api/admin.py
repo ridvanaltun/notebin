@@ -4,7 +4,7 @@ from .models import User, Note,  Tracking, Backup
 
 
 class UserAdmin(admin.ModelAdmin):
-    list_display = ("username", 'date_joined', 'last_login')
+    list_display = ("username", 'date_joined', 'last_login', 'is_active', 'email_verified')
 
 
 class NoteAdmin(admin.ModelAdmin):
