@@ -21,6 +21,7 @@ from rest_framework_simplejwt.exceptions import TokenError
 
 from .models import *
 from .serializers import *
+from .functions import seconds_to_left
 from .generators import account_activation_token
 
 
@@ -262,7 +263,8 @@ def register(request):
             'domain': current_site.domain,
             'uid': urlsafe_base64_encode(force_bytes(user.pk)),
             'token': account_activation_token.make_token(user),
-            'frontend_address': os.environ['FRONTEND_ADDRESS']
+            'frontend_address': os.environ['FRONTEND_ADDRESS'],
+            'left': seconds_to_left(os.environ['PASSWORD_RESET_TIMEOUT'])
         })
         plain_message = strip_tags(html_message)
         from_email = 'From <' + os.environ['EMAIL_ADDRESS_NO_REPLY'] + '>'

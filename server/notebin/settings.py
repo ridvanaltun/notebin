@@ -14,10 +14,13 @@ import os
 from datetime import timedelta
 import environ
 
+
 env = environ.Env(
     # set casting, default value
     DEBUG=(bool, False),
-    EMAIL_USE_TLS=(bool, False)
+    EMAIL_USE_TLS=(bool, False),
+    EMAIL_PORT=(int),
+    PASSWORD_RESET_TIMEOUT=(int)
 )
 
 # reading .env file
@@ -35,6 +38,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = env('SECRET_KEY')
 
 DEBUG = env('DEBUG')
+
+PASSWORD_RESET_TIMEOUT = env('PASSWORD_RESET_TIMEOUT')
 
 ALLOWED_HOSTS = []
 
