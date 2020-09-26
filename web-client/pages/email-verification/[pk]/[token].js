@@ -4,6 +4,11 @@ import PropTypes from 'prop-types'
 // Components
 import Typography from '@material-ui/core/Typography'
 import Container from '@material-ui/core/Container'
+import Box from '@material-ui/core/Box'
+
+// Icons
+import DoneAll from '@material-ui/icons/DoneAll'
+import Error from '@material-ui/icons/Error'
 
 // Utils
 import { makeStyles } from '@material-ui/core/styles'
@@ -11,14 +16,18 @@ import { apiClient } from '../../../utils'
 
 // Redux
 import { useDispatch } from 'react-redux'
-import { hideNav } from '../store/actions/appAction'
+import { hideNav } from '../../../store/actions/appAction'
 
 const useStyles = makeStyles((theme) => ({
   root: {
     display: 'flex',
+    flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    height: '80%'
+    height: '100%'
+  },
+  icon: {
+    fontSize: 120
   }
 }))
 
@@ -32,6 +41,9 @@ const EmailVerification = ({ isOk }) => {
   if (isOk) {
     return (
       <Container className={classes.root}>
+        <Box m={2}>
+          <DoneAll className={classes.icon} />
+        </Box>
         <Typography component="h1" variant="h5">
           Your account has been activate successfully.
         </Typography>
@@ -41,6 +53,9 @@ const EmailVerification = ({ isOk }) => {
 
   return (
     <Container className={classes.root}>
+      <Box m={2}>
+        <Error className={classes.icon} />
+      </Box>
       <Typography component="h1" variant="h5">
           Activation link is invalid.
       </Typography>
