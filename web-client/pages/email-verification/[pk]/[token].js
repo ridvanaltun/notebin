@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import PropTypes from 'prop-types'
 
 // Components
@@ -8,6 +8,10 @@ import Container from '@material-ui/core/Container'
 // Utils
 import { makeStyles } from '@material-ui/core/styles'
 import { apiClient } from '../../../utils'
+
+// Redux
+import { useDispatch } from 'react-redux'
+import { hideNav } from '../store/actions/appAction'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -20,6 +24,10 @@ const useStyles = makeStyles((theme) => ({
 
 const EmailVerification = ({ isOk }) => {
   const classes = useStyles()
+  const dispatch = useDispatch()
+
+  // hide navbar
+  useEffect(() => { dispatch(hideNav()) }, [])
 
   if (isOk) {
     return (

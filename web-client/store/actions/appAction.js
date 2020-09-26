@@ -8,3 +8,15 @@ export const setTitle = (newTitle) => dispatch => {
     }
   })
 }
+
+export const hideNav = () => dispatch => {
+  dispatch({
+    type: types.HIDE_NAV
+  })
+}
+
+export const showNav = () => dispatch => {
+  dispatch({
+    type: types.SHOW_NAV
+  })
+}

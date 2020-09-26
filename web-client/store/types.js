@@ -1,5 +1,7 @@
 // App
 export const CHANGE_APP_TITLE = 'CHANGE_APP_TITLE'
+export const HIDE_NAV = 'HIDE_NAV'
+export const SHOW_NAV = 'SHOW_NAV'
 
 // Auth
 export const LOGIN_BEGIN = 'LOGIN_BEGIN'
