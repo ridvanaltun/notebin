@@ -81,6 +81,11 @@ class NotePasswordSerializer(serializers.Serializer):
     password = serializers.CharField(required=True)
 
 
+class EmailVerifySerializer(serializers.Serializer):
+    pk = serializers.CharField(required=True)
+    token = serializers.CharField(required=True)
+
+
 class CreateNoteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Note

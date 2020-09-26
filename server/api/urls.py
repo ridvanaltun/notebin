@@ -23,5 +23,5 @@ urlpatterns = [
     path('trackings/<str:path>', views.tracking, name='tracking'),
     path('backups', views.backups, name='backups'),
     path('backups/<str:uuid>', views.backup, name='backup'),
-    path('activate/<str:uidb64>/<str:token>', views.activate_account, name="activate"),
+    path('activate-email', views.activate_email, name="activate-email"),
 ]

@@ -5,7 +5,6 @@ from django.http import HttpResponse
 from django.core.exceptions import ValidationError
 from django.core import mail
 from django.contrib.auth.models import update_last_login
-from django.contrib.sites.shortcuts import get_current_site
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.html import strip_tags
 from django.utils.encoding import force_bytes
@@ -256,15 +255,15 @@ def register(request):
         user = User.objects.get(username=request.data['username'])
 
         # send registration email
-        current_site = get_current_site(request)
         email_subject = 'Confirm your email at Notebin'
         html_message  = render_to_string('activate_account.html', {
             'user': user,
-            'domain': current_site.domain,
             'uid': urlsafe_base64_encode(force_bytes(user.pk)),
             'token': account_activation_token.make_token(user),
             'frontend_address': os.environ['FRONTEND_ADDRESS'],
-            'left': seconds_to_left(os.environ['PASSWORD_RESET_TIMEOUT'])
+            'time_left': seconds_to_left(os.environ['PASSWORD_RESET_TIMEOUT']),
+            'frontend_logo_path': os.environ['FRONTEND_LOGO_PATH'],
+            'frontend_email_verification_path': os.environ['FRONTEND_EMAIL_VERIFICATION_PATH']
         })
         plain_message = strip_tags(html_message)
         from_email = 'From <' + os.environ['EMAIL_ADDRESS_NO_REPLY'] + '>'
@@ -292,20 +291,30 @@ def register(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['GET'])
-def activate_account(request, uidb64, token):
-    try:
-        uid = force_bytes(urlsafe_base64_decode(uidb64))
-        user = User.objects.get(pk=uid)
-    except(TypeError, ValueError, OverflowError, User.DoesNotExist):
-        user = None
-    if user is not None and account_activation_token.check_token(user, token):
-        user.email_verified = True
-        user.save()
+@api_view(['POST'])
+def activate_email(request):
+    if request.method == 'POST':
+        serializer = EmailVerifySerializer(data=request.data)
 
-        return HttpResponse('Your account has been activate successfully')
-    else:
-        return HttpResponse('Activation link is invalid!', status=status.HTTP_400_BAD_REQUEST)
+        if serializer.is_valid():
+            try:
+                pk = force_bytes(urlsafe_base64_decode((serializer.data.get("pk"))))
+                token = serializer.data.get("token")
+                user = User.objects.get(pk=pk)
+            except(TypeError, ValueError, OverflowError, User.DoesNotExist):
+                user = None
+
+            if user is not None and account_activation_token.check_token(user, token):
+                user.email_verified = True
+                user.save()
+
+                return Response({'detail': 'Your account has been activate successfully.'})
+
+            else:
+                return Response({'detail': 'Activation link is invalid.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['POST'])
