@@ -262,7 +262,7 @@ def register(request):
             'token': account_activation_token.make_token(user),
             'frontend_address': os.environ['FRONTEND_ADDRESS'],
             'time_left': seconds_to_left(os.environ['PASSWORD_RESET_TIMEOUT']),
-            'frontend_logo_path': os.environ['FRONTEND_LOGO_PATH'],
+            'frontend_logo_url': os.environ['FRONTEND_LOGO_URL'],
             'frontend_email_verification_path': os.environ['FRONTEND_EMAIL_VERIFICATION_PATH']
         })
         plain_message = strip_tags(html_message)
