@@ -9,21 +9,23 @@ def seconds_to_left(seconds):
     minutes = seconds // 60
     seconds %= 60
 
+    result = ''
+
     if days > 0:
         result = str(days) + ' days'
 
     if hours > 0:
-        if days > 0:
+        if result != '':
             result += ' '
-        result = str(hours) + ' hours'
+        result += str(hours) + ' hours'
 
     if minutes > 0:
-        if hours > 0:
+        if result != '':
             result += ' '
         result += str(minutes) + ' minutes'
 
     if seconds > 0:
-        if minutes > 0:
+        if result != '':
             result += ' '
         result += str(seconds) + ' seconds'
 
