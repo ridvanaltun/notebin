@@ -24,4 +24,5 @@ urlpatterns = [
     path('backups', views.backups, name='backups'),
     path('backups/<str:uuid>', views.backup, name='backup'),
     path('activate-email', views.activate_email, name="activate-email"),
+    path('resend-activate-email', views.resend_activate_email, name="resend-activate-email"),
 ]

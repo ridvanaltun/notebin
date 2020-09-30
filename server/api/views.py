@@ -294,7 +294,7 @@ def register(request):
 @api_view(['POST'])
 def activate_email(request):
     if request.method == 'POST':
-        serializer = EmailVerifySerializer(data=request.data)
+        serializer = ActivateEmailSerializer(data=request.data)
 
         if serializer.is_valid():
             try:
@@ -305,6 +305,7 @@ def activate_email(request):
                 user = None
 
             if user is not None and account_activation_token.check_token(user, token):
+                # mark as email activated
                 user.email_verified = True
                 user.save()
 
@@ -312,6 +313,41 @@ def activate_email(request):
 
             else:
                 return Response({'detail': 'Activation link is invalid.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+def resend_activate_email(request):
+    if request.method == 'POST':
+        serializer = ResendActivateEmailSerializer(data=request.data)
+
+        if serializer.is_valid():
+            email = serializer.data.get("email")
+            user = User.objects.get(email=email)
+
+            if (user.email_verified):
+                return Response({'detail': 'You email address already active.'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # send registration email
+            email_subject = 'Confirm your email at Notebin'
+            html_message  = render_to_string('activate_account.html', {
+                'user': user,
+                'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+                'token': account_activation_token.make_token(user),
+                'frontend_address': os.environ['FRONTEND_ADDRESS'],
+                'time_left': seconds_to_left(os.environ['PASSWORD_RESET_TIMEOUT']),
+                'frontend_logo_url': os.environ['FRONTEND_LOGO_URL'],
+                'frontend_email_verification_path': os.environ['FRONTEND_EMAIL_VERIFICATION_PATH']
+            })
+            plain_message = strip_tags(html_message)
+            from_email = 'From <' + os.environ['EMAIL_ADDRESS_NO_REPLY'] + '>'
+            to_email = request.data['email']
+            mail.send_mail(email_subject, plain_message, from_email, [to_email], html_message=html_message)
+
+
+            return Response({'detail': 'Mail sended.'})
 
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
