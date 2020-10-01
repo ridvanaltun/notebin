@@ -9,6 +9,7 @@ class User(AbstractUser):
     username = models.CharField(max_length=30, unique=True, validators=[alphanumeric])
     email = models.EmailField(max_length=254, null=False, blank=False, unique=True)
     email_updates = models.BooleanField(default=True)
+    email_verified = models.BooleanField(default=True)
 
 
 class Note(models.Model):

@@ -1,13 +1,18 @@
-import sys
+import os
 import json
 
-from django.urls import reverse
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse
 from django.core.exceptions import ValidationError
+from django.core import mail
 from django.contrib.auth.models import update_last_login
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.html import strip_tags
+from django.utils.encoding import force_bytes
+from django.template.loader import render_to_string
+
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import BasePermission, IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -15,6 +20,8 @@ from rest_framework_simplejwt.exceptions import TokenError
 
 from .models import *
 from .serializers import *
+from .functions import seconds_to_left
+from .generators import account_activation_token
 
 
 @api_view(['POST'])
@@ -241,10 +248,34 @@ def logout(request):
 def register(request):
     serializer = CreateUserSerializer(data=request.data)
     if serializer.is_valid():
-        serializer.save()
+        # save user
+        serializer.save(email_verified=False)
+
+        # user
         user = User.objects.get(username=request.data['username'])
+
+        # send registration email
+        email_subject = 'Confirm your email at Notebin'
+        html_message  = render_to_string('activate_account.html', {
+            'user': user,
+            'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+            'token': account_activation_token.make_token(user),
+            'frontend_address': os.environ['FRONTEND_ADDRESS'],
+            'time_left': seconds_to_left(os.environ['PASSWORD_RESET_TIMEOUT']),
+            'frontend_logo_url': os.environ['FRONTEND_LOGO_URL'],
+            'frontend_email_verification_path': os.environ['FRONTEND_EMAIL_VERIFICATION_PATH']
+        })
+        plain_message = strip_tags(html_message)
+        from_email = 'From <' + os.environ['EMAIL_ADDRESS_NO_REPLY'] + '>'
+        to_email = request.data['email']
+        mail.send_mail(email_subject, plain_message, from_email, [to_email], html_message=html_message)
+
+        # create jwt token for user
         refresh = RefreshToken.for_user(user)
+
+        # serialize user data
         user_serializer = UserSerializer(user)
+
         return Response({
             "user": user_serializer.data,
             "token": {
@@ -252,8 +283,74 @@ def register(request):
                 'access': str(refresh.access_token),
             }
         }, status=status.HTTP_201_CREATED)
+
+        # return Response({
+        #     'detail': 'We have sent you an email, please confirm your email address to complete registration'
+        # })
     else:
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+def activate_email(request):
+    if request.method == 'POST':
+        serializer = ActivateEmailSerializer(data=request.data)
+
+        if serializer.is_valid():
+            try:
+                pk = force_bytes(urlsafe_base64_decode((serializer.data.get("pk"))))
+                token = serializer.data.get("token")
+                user = User.objects.get(pk=pk)
+            except(TypeError, ValueError, OverflowError, User.DoesNotExist):
+                user = None
+
+            if user is not None and account_activation_token.check_token(user, token):
+                # mark as email activated
+                user.email_verified = True
+                user.save()
+
+                return Response({'detail': 'Your account has been activate successfully.'})
+
+            else:
+                return Response({'detail': 'Activation link is invalid.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+def resend_activate_email(request):
+    if request.method == 'POST':
+        serializer = ResendActivateEmailSerializer(data=request.data)
+
+        if serializer.is_valid():
+            email = serializer.data.get("email")
+            user = User.objects.get(email=email)
+
+            if (user.email_verified):
+                return Response({'detail': 'You email address already active.'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # send registration email
+            email_subject = 'Confirm your email at Notebin'
+            html_message  = render_to_string('activate_account.html', {
+                'user': user,
+                'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+                'token': account_activation_token.make_token(user),
+                'frontend_address': os.environ['FRONTEND_ADDRESS'],
+                'time_left': seconds_to_left(os.environ['PASSWORD_RESET_TIMEOUT']),
+                'frontend_logo_url': os.environ['FRONTEND_LOGO_URL'],
+                'frontend_email_verification_path': os.environ['FRONTEND_EMAIL_VERIFICATION_PATH']
+            })
+            plain_message = strip_tags(html_message)
+            from_email = 'From <' + os.environ['EMAIL_ADDRESS_NO_REPLY'] + '>'
+            to_email = request.data['email']
+            mail.send_mail(email_subject, plain_message, from_email, [to_email], html_message=html_message)
+
+
+            return Response({'detail': 'Mail sended.'})
+
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['POST'])

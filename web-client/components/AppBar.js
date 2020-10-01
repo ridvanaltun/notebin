@@ -52,7 +52,7 @@ const AppBar = ({ handleDarkThemeToggle, darkState }) => {
   const open = Boolean(anchorEl)
 
   // Redux States
-  const { title } = useSelector(state => state.app)
+  const { title, hideNav } = useSelector(state => state.app)
   const { user, accessToken, refreshToken } = useSelector(state => state.auth)
 
   const handleUserMenu = (event) => {
@@ -101,6 +101,10 @@ const AppBar = ({ handleDarkThemeToggle, darkState }) => {
           <MenuItem onClick={handleLogout}>Logout</MenuItem>
         </Menu>
       </>)
+  }
+
+  if (hideNav) {
+    return null
   }
 
   return (

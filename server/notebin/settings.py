@@ -12,6 +12,20 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 import os
 from datetime import timedelta
+import environ
+
+
+env = environ.Env(
+    # set casting, default value
+    DEBUG=(bool, False),
+    EMAIL_USE_TLS=(bool, False),
+    EMAIL_PORT=(int),
+    PASSWORD_RESET_TIMEOUT=(int)
+)
+
+# reading .env file
+environ.Env.read_env()
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -21,10 +35,11 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'ri_^ab50pmy+4f7!qw@xj*@9i*+f(!w06-fs@m1+(_phg^zm=u'
+SECRET_KEY = env('SECRET_KEY')
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env('DEBUG')
+
+PASSWORD_RESET_TIMEOUT = env('PASSWORD_RESET_TIMEOUT')
 
 ALLOWED_HOSTS = []
 
@@ -152,15 +167,14 @@ REST_FRAMEWORK = {
 
 # Django Rest Framework SimpleJWT
 
-# SIMPLE_JWT = {
-#     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
-#     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+SIMPLE_JWT = {
+     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
+     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
 #     'ROTATE_REFRESH_TOKENS': False,
 #     'BLACKLIST_AFTER_ROTATION': True,
 
 #     'ALGORITHM': 'HS256',
-#     #'SIGNING_KEY': settings.SECRET_KEY,
-#     'SIGNING_KEY': 'nft0qHdBOMl1g1EJMB0S4LcQQIWr-VIQmxef3boMBjmlD2Tt_Z70vtf0Ai9o-tSGd3v7WAYLBU-ZUvpGaXINMMNqBaJSoae7pk-bPHannts-Rg5PPjs3TH39onXL-CvD3EBUaoYNDWIVwAfQ28o9aXmRGIqnN5j5DiG_3CymHfsPdeGSwpvFm4yba9_d42SCMdnEWCp4Hksv_UQjE0aCO19yFC_bUNq1tZd7PEpBs4XZQ_YZhzt7s08bDKXB2ANCAc6NJl6uUQ-oNv55htWNVtha_W0JrJwLhaiaUeznnsa4Q-hOzx_WaVYAREaeF9vWOtchQ0klpMeDwRmqUxNNbQ',
+     'SIGNING_KEY': env('JWT_SECRET_KEY'),
 #     'VERIFYING_KEY': None,
 #     'AUDIENCE': None,
 #     'ISSUER': None,
@@ -177,7 +191,7 @@ REST_FRAMEWORK = {
 #     'SLIDING_TOKEN_REFRESH_EXP_CLAIM': 'refresh_exp',
 #     'SLIDING_TOKEN_LIFETIME': timedelta(minutes=5),
 #     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
-# }
+}
 
 
 # drf_yasg
@@ -197,3 +211,27 @@ SWAGGER_SETTINGS = {
 CORS_ORIGIN_ALLOW_ALL = True # If this is used then `CORS_ORIGIN_WHITELIST` will not have any effect
 
 CORS_ALLOW_CREDENTIALS = True
+
+# Email
+
+EMAIL_USE_TLS = env('EMAIL_USE_TLS')
+
+EMAIL_HOST = env('EMAIL_HOST')
+
+EMAIL_HOST_USER = env('EMAIL_HOST_USER')
+
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
+
+EMAIL_PORT = env('EMAIL_PORT')
+
+# Email Addresses
+
+EMAIL_ADDRESS_NO_REPLY = env('EMAIL_ADDRESS_NO_REPLY')
+
+# Front-end
+
+FRONTEND_ADDRESS = env('FRONTEND_ADDRESS')
+
+FRONTEND_EMAIL_VERIFICATION_PATH = env('FRONTEND_EMAIL_VERIFICATION_PATH')
+
+FRONTEND_LOGO_URL = env('FRONTEND_LOGO_URL')

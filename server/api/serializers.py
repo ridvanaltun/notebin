@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_framework.exceptions import AuthenticationFailed
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth import authenticate, get_user_model
@@ -34,10 +35,15 @@ class LoginSerializer(serializers.Serializer):
                                 username=username, password=password)
             if not user:
                 msg = 'Unable to log in with provided credentials.'
-                raise serializers.ValidationError(msg, code='authorization')
+                raise AuthenticationFailed(msg)
+
+            # elif not user.email_verified:
+            #     msg = 'Email address not verified.'
+            #     raise AuthenticationFailed(msg)
+
         else:
             msg = 'Must include "username" and "password".'
-            raise serializers.ValidationError(msg, code='authorization')
+            raise serializers.ValidationError(msg)
 
         data['user'] = user
         return data
@@ -75,6 +81,15 @@ class NotePasswordSerializer(serializers.Serializer):
     password = serializers.CharField(required=True)
 
 
+class ActivateEmailSerializer(serializers.Serializer):
+    pk = serializers.CharField(required=True)
+    token = serializers.CharField(required=True)
+
+
+class ResendActivateEmailSerializer(serializers.Serializer):
+    email = serializers.EmailField(required=True)
+
+
 class CreateNoteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Note
@@ -86,7 +101,7 @@ class UserSerializer(serializers.ModelSerializer):
     date_joined = serializers.DateTimeField(read_only=True)
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'date_joined', 'last_login', 'email_updates']
+        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'date_joined', 'last_login', 'email_updates', 'email_verified']
 
 
 class CreateUserSerializer(serializers.ModelSerializer):

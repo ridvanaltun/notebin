@@ -57,7 +57,7 @@ const Login = () => {
   const [password, setPassword] = useState('')
 
   // Redux States
-  const { error } = useSelector(state => state.auth)
+  const { error, errorStatus, loading } = useSelector(state => state.auth)
 
   // Change App Title
   useEffect(() => { dispatch(setTitle('Login')) }, [])
@@ -91,8 +91,9 @@ const Login = () => {
             autoComplete="username"
             value={username}
             onChange={(event) => { setUsername(event.target.value) }}
-            error={loginClicked && !!(error && error.non_field_errors)}
-            helperText={loginClicked && error && error.non_field_errors ? error.non_field_errors : ''}
+            error={loginClicked && !!(error && (errorStatus === 400 || errorStatus === 401))}
+            helperText={loginClicked && (errorStatus === 400 ? error.non_field_errors : errorStatus === 401 ? error.detail : '')}
+            disabled={loading}
           />
           <PasswordInput
             variant="outlined"
@@ -105,8 +106,9 @@ const Login = () => {
             autoComplete="current-password"
             value={password}
             onChange={(event) => { setPassword(event.target.value) }}
-            error={loginClicked && !!(error && error.non_field_errors)}
-            helperText={loginClicked && error && error.non_field_errors ? error.non_field_errors : ''}
+            error={loginClicked && !!(error && (errorStatus === 400 || errorStatus === 401))}
+            helperText={loginClicked && (errorStatus === 400 ? error.non_field_errors : errorStatus === 401 ? error.detail : '')}
+            disabled={loading}
           />
           <Button
             type="submit"
@@ -114,6 +116,7 @@ const Login = () => {
             variant="contained"
             color="primary"
             className={classes.submit}
+            disabled={loading}
           >
             Sign In
           </Button>
