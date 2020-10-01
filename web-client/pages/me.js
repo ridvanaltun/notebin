@@ -63,11 +63,16 @@ const useStyles = makeStyles((theme) => ({
   },
   leftSection: {
     width: '30%',
-    padding: 20,
-    boxShadow: '0 0 black'
+    margin: 20,
+    boxShadow: '0 0 black',
+    background: 'bottom'
   },
-  tabsCard: {
-    width: '65%'
+  rightSection: {
+    width: '65%',
+    margin: 20
+  },
+  profileBox: {
+    padding: 20
   },
   noteTrackingContainer: {
     width: '100%',
@@ -109,9 +114,6 @@ const useStyles = makeStyles((theme) => ({
   },
   smallTabsCard: {
   },
-  profileBox: {
-    padding: 15
-  },
   emailVerifyBox: {
     display: 'flex',
     alignItems: 'center',
@@ -136,6 +138,8 @@ const Me = () => {
   const [expanded, setExpanded] = useState(false)
   const [emailChangeClicked, setEmailChangeClicked] = useState(false)
   const [profileUpdateClicked, setProfileUpdateClicked] = useState(false)
+  const [deleteAccountText, setDeleteAccountText] = useState('')
+  const [deleteAccountTextWrong, setDeleteAccountTextWrong] = useState(false)
 
   // Redux States
   const { user, error } = useSelector(state => state.auth)
@@ -314,8 +318,14 @@ const Me = () => {
   }
 
   const onDeleteAccountPress = () => {
-    setDeleteAccountDialog(false)
-    dispatch(deleteUser())
+    if (deleteAccountText !== user.username) {
+      setDeleteAccountTextWrong(true)
+    } else {
+      // success
+      setDeleteAccountTextWrong(false)
+      setDeleteAccountDialog(false)
+      dispatch(deleteUser())
+    }
   }
 
   const onResendPress = async () => {
@@ -612,8 +622,20 @@ const Me = () => {
         <DialogTitle id="alert-dialog-slide-title">{'Delete Your Account?'}</DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-slide-description">
-            This action cannot be undone!
+            {`This action cannot be undone!
+              Write `}<b>{`${user.username}`}</b>
+            {' to below before proceed.'}
           </DialogContentText>
+          <TextField
+            required
+            fullWidth
+            margin="normal"
+            label="type here"
+            variant="outlined"
+            value={deleteAccountText}
+            onChange={(event) => { setDeleteAccountText(event.target.value) }}
+            error={deleteAccountTextWrong}
+          />
         </DialogContent>
         <DialogActions>
           <Button onClick={() => { setDeleteAccountDialog(false) }} color="primary">
@@ -757,7 +779,7 @@ const Me = () => {
           {renderUserProfile()}
         </Paper>
       </Paper>
-      <Paper variant="outlined" className={isPhoneOrTablet ? classes.smallTabsCard : classes.tabsCard}>
+      <Paper variant="outlined" className={isPhoneOrTablet ? classes.smallTabsCard : classes.rightSection}>
         {renderTabs()}
       </Paper>
     </Box>

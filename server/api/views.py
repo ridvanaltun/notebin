@@ -87,6 +87,7 @@ def note(request, path):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+    # todo: when change email change email status and send activation email
     elif request.method == 'PATCH':
         serializer = NoteSerializer(note, data=request.data, partial=True)
         if serializer.is_valid():
@@ -186,7 +187,9 @@ def me(request):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     elif request.method == 'DELETE':
-        request.user.delete()
+        # request.user.delete()
+        request.user.is_active = False
+        request.user.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
