@@ -25,4 +25,6 @@ urlpatterns = [
     path('backups/<str:uuid>', views.backup, name='backup'),
     path('activate-email', views.activate_email, name="activate-email"),
     path('resend-activate-email', views.resend_activate_email, name="resend-activate-email"),
+    path('forgot-password', views.forgot_password, name="forgot-password"),
+    path('reset-password', views.reset_password, name="reset-password"),
 ]

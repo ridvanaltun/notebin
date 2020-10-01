@@ -90,6 +90,22 @@ class ResendActivateEmailSerializer(serializers.Serializer):
     email = serializers.EmailField(required=True)
 
 
+class ForgotPasswordSerializer(serializers.Serializer):
+    username = serializers.CharField(required=True)
+    email = serializers.EmailField(required=True)
+
+
+class ResetPasswordSerializer(serializers.Serializer):
+    pk = serializers.CharField(required=True)
+    token = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True)
+
+    def validate_new_password(self, value):
+        validate_password(value)
+        return value
+
+
+
 class CreateNoteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Note
