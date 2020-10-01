@@ -252,3 +252,10 @@ export const updateProfile = (firstName, lastName) => async dispatch => {
     }
   }
 }
+
+export const setProfile = (data) => async dispatch => {
+  dispatch({
+    type: types.SET_PROFILE,
+    payload: data
+  })
+}

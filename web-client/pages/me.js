@@ -39,7 +39,7 @@ import { withUser, apiClient, capitalizeFirstLetter, timeAgo, openInNewTab } fro
 // Redux
 import { useSelector, useDispatch } from 'react-redux'
 import { setTitle } from '../store/actions/appAction'
-import { deleteUser, updateEmail, updateProfile } from '../store/actions/authAction'
+import { deleteUser, updateEmail, updateProfile, setProfile } from '../store/actions/authAction'
 
 function a11yProps (index) {
   return {
@@ -61,9 +61,10 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: 'space-between',
     margin: 20
   },
-  userProfileCard: {
+  leftSection: {
     width: '30%',
-    padding: 20
+    padding: 20,
+    boxShadow: '0 0 black'
   },
   tabsCard: {
     width: '65%'
@@ -107,6 +108,19 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'center'
   },
   smallTabsCard: {
+  },
+  profileBox: {
+    padding: 15
+  },
+  emailVerifyBox: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    color: '#7f7813',
+    backgroundColor: '#ffc107',
+    padding: 20,
+    marginBottom: 20,
+    borderRadius: 5
   }
 }))
 
@@ -119,9 +133,9 @@ const Me = () => {
   // States
   const [tabIndex, setTabIndex] = useState(0)
   const [deleteAccountDialog, setDeleteAccountDialog] = useState(false)
-  const [expanded, setExpanded] = React.useState(false)
-  const [emailChangeClicked, setEmailChangeClicked] = React.useState(false)
-  const [profileUpdateClicked, setProfileUpdateClicked] = React.useState(false)
+  const [expanded, setExpanded] = useState(false)
+  const [emailChangeClicked, setEmailChangeClicked] = useState(false)
+  const [profileUpdateClicked, setProfileUpdateClicked] = useState(false)
 
   // Redux States
   const { user, error } = useSelector(state => state.auth)
@@ -154,8 +168,11 @@ const Me = () => {
         })
 
         // collect data
-        const { backups } = res.data
+        const { backups, user } = res.data
         const trackings = res.data.trackings.map(tracking => tracking.note)
+
+        // update global user
+        dispatch(setProfile(user))
 
         // process data
         const updatedTrackings = trackings.map(tracking => {
@@ -299,6 +316,22 @@ const Me = () => {
   const onDeleteAccountPress = () => {
     setDeleteAccountDialog(false)
     dispatch(deleteUser())
+  }
+
+  const onResendPress = async () => {
+    try {
+      await apiClient({
+        method: 'post',
+        url: '/resend-activate-email',
+        data: {
+          email: user.email
+        }
+      }, false)
+      toast.info('A new email sended, check your emails and spams!')
+    } catch (error) {
+      if (error.response && error.response.status === 400) toast.info(error.response.data.detail)
+      else toast.info('An unknown error occurred')
+    }
   }
 
   const handleChangePassword = async (event) => {
@@ -704,10 +737,25 @@ const Me = () => {
     )
   }
 
+  const renderEmailVerifyNotification = () => {
+    console.log(user)
+    if (user.email_verified) return null
+
+    return (
+      <Typography className={classes.emailVerifyBox}>
+          Activate your email!
+        <Button onClick={onResendPress}>RESEND</Button>
+      </Typography>
+    )
+  }
+
   return (
     <Box className={isPhoneOrTablet ? classes.smallRoot : classes.root}>
-      <Paper variant="outlined" className={isPhoneOrTablet ? classes.hide : classes.userProfileCard}>
-        {renderUserProfile()}
+      <Paper className={isPhoneOrTablet ? classes.hide : classes.leftSection}>
+        {renderEmailVerifyNotification()}
+        <Paper variant="outlined" className={classes.profileBox}>
+          {renderUserProfile()}
+        </Paper>
       </Paper>
       <Paper variant="outlined" className={isPhoneOrTablet ? classes.smallTabsCard : classes.tabsCard}>
         {renderTabs()}

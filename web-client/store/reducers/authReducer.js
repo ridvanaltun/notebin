@@ -78,6 +78,11 @@ const authReducer = (state = initialState, action) => {
         error: action.payload.error,
         errorStatus: action.payload.errorStatus || null
       }
+    case types.SET_PROFILE:
+      return {
+        ...state,
+        user: { ...state.user, ...action.payload }
+      }
     case types.REFRESH_TOKEN:
       return {
         ...state,
