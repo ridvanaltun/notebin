@@ -20,8 +20,8 @@ from rest_framework_simplejwt.exceptions import TokenError
 
 from .models import *
 from .serializers import *
-from .functions import seconds_to_left
-from .generators import account_activation_token
+from .utils import seconds_to_left, send_activation_mail, send_reset_password_mail
+from .generators import account_activation_token, password_reset_token
 
 
 @api_view(['POST'])
@@ -258,20 +258,7 @@ def register(request):
         user = User.objects.get(username=request.data['username'])
 
         # send registration email
-        email_subject = 'Confirm your email at Notebin'
-        html_message  = render_to_string('activate_account.html', {
-            'user': user,
-            'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-            'token': account_activation_token.make_token(user),
-            'frontend_address': os.environ['FRONTEND_ADDRESS'],
-            'time_left': seconds_to_left(os.environ['PASSWORD_RESET_TIMEOUT']),
-            'frontend_logo_url': os.environ['FRONTEND_LOGO_URL'],
-            'frontend_email_verification_path': os.environ['FRONTEND_EMAIL_VERIFICATION_PATH']
-        })
-        plain_message = strip_tags(html_message)
-        from_email = 'From <' + os.environ['EMAIL_ADDRESS_NO_REPLY'] + '>'
-        to_email = request.data['email']
-        mail.send_mail(email_subject, plain_message, from_email, [to_email], html_message=html_message)
+        send_activation_mail(user, request.data['email'])
 
         # create jwt token for user
         refresh = RefreshToken.for_user(user)
@@ -334,23 +321,58 @@ def resend_activate_email(request):
                 return Response({'detail': 'You email address already active.'}, status=status.HTTP_400_BAD_REQUEST)
 
             # send registration email
-            email_subject = 'Confirm your email at Notebin'
-            html_message  = render_to_string('activate_account.html', {
-                'user': user,
-                'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-                'token': account_activation_token.make_token(user),
-                'frontend_address': os.environ['FRONTEND_ADDRESS'],
-                'time_left': seconds_to_left(os.environ['PASSWORD_RESET_TIMEOUT']),
-                'frontend_logo_url': os.environ['FRONTEND_LOGO_URL'],
-                'frontend_email_verification_path': os.environ['FRONTEND_EMAIL_VERIFICATION_PATH']
-            })
-            plain_message = strip_tags(html_message)
-            from_email = 'From <' + os.environ['EMAIL_ADDRESS_NO_REPLY'] + '>'
-            to_email = request.data['email']
-            mail.send_mail(email_subject, plain_message, from_email, [to_email], html_message=html_message)
-
+            send_activation_mail(user, request.data['email'])
 
             return Response({'detail': 'Mail sended.'})
+
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+def forgot_password(request):
+    if request.method == 'POST':
+        serializer = ForgotPasswordSerializer(data=request.data)
+
+        if serializer.is_valid():
+            email = request.data['email']
+            username = request.data['username']
+
+            try:
+                user = User.objects.get(email=email, username=username)
+            except User.DoesNotExist:
+                return Response({'detail': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+            # send rest password mail
+            send_reset_password_mail(user, email)
+
+            return Response({'detail': 'Reset password mail sended.'})
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+def reset_password(request):
+    if request.method == 'POST':
+        serializer = ResetPasswordSerializer(data=request.data)
+
+        if serializer.is_valid():
+            try:
+                pk = force_bytes(urlsafe_base64_decode((serializer.data.get("pk"))))
+                token = serializer.data.get("token")
+                user = User.objects.get(pk=pk)
+            except(TypeError, ValueError, OverflowError, User.DoesNotExist):
+                user = None
+
+            if user is not None and password_reset_token.check_token(user, token):
+                # set_password also hashes the password that the user will get
+                user.set_password(serializer.data.get("new_password"))
+                user.save()
+
+                return Response({'detail': 'Your password changed.'})
+
+            else:
+                return Response({'detail': 'Reset password link is invalid.'}, status=status.HTTP_400_BAD_REQUEST)
 
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
