@@ -8,7 +8,31 @@ export default class MyDocument extends Document {
     return (
       <Html lang="en">
         <Head>
-          <meta name="theme-color" content={theme(false).palette.primary.main} />
+          <meta charSet="utf-8" />
+          <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
+          <meta
+            name="description"
+            content="It helps you take notes, manage your notes and share your notes."
+          />
+          <meta name="keywords" content="note" />
+          <meta
+            name="theme-color"
+            content={theme(false).palette.primary.main}
+          />
+          <link rel="manifest" href="/manifest.json" />
+          <link
+            rel="icon"
+            type="image/png"
+            href="/favicon-16x16.png"
+            sizes="16x16"
+          />
+          <link
+            rel="icon"
+            type="image/png"
+            href="/favicon-32x32.png"
+            sizes="32x32"
+          />
+          <link rel="apple-touch-icon" href="/apple-icon.png"></link>
           <link
             rel="stylesheet"
             href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
@@ -62,6 +86,9 @@ MyDocument.getInitialProps = async (ctx) => {
   return {
     ...initialProps,
     // Styles fragment is rendered after the app and page rendering finish.
-    styles: [...React.Children.toArray(initialProps.styles), sheets.getStyleElement()]
+    styles: [
+      ...React.Children.toArray(initialProps.styles),
+      sheets.getStyleElement()
+    ]
   }
 }
