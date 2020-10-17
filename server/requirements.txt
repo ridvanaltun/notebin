@@ -3,3 +3,4 @@ djangorestframework==3.11.1
 djangorestframework_simplejwt==4.4.0
 django-cors-headers==3.5.0
 django-environ==0.4.5
+six==1.15.0
