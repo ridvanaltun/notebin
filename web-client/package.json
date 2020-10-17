@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "cross-env NODE_ENV=development next dev",
+    "build": "cross-env NODE_ENV=production next build",
     "start": "next start"
   },
   "dependencies": {
@@ -33,6 +33,7 @@
     "redux-thunk": "^2.3.0"
   },
   "devDependencies": {
+    "cross-env": "^7.0.2",
     "eslint": "^7.9.0",
     "eslint-config-standard": "^14.1.1",
     "eslint-plugin-import": "^2.22.0",
