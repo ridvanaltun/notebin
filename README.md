@@ -12,6 +12,8 @@
 - RESTful API
 - JWT
 - PWA
+- Docker
+- Docker Compose
 
 ## Features
 
@@ -28,7 +30,7 @@
 - Lock any note with a password, you can unlock the note if know the password
 - Automatically save, no save button
 - Mobile responsive
-- Progressive
+- Progressive Web App
 - User system, register and login
 - You can change your profile details and your password after registration
 - You can delete your account with your all data
@@ -45,4 +47,11 @@ $ npm run build
 
 # start production server
 $ npm run start
+```
+
+## Up Containers
+
+```bash
+# up pgadmin and postgres
+$ docker-compose up -d
 ```

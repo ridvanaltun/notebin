@@ -1,0 +1,43 @@
+version: '3.7'
+
+volumes:
+    postgres:
+    pgadmin:
+
+services:
+  postgres:
+    image: postgres:12.2
+    container_name: ${POSTGRES_HOST}
+    env_file:
+      - ./server/notebin/.env
+    volumes:
+      - postgres:/data/postgres
+    #healthcheck:
+    #  test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER}"]
+    #  interval: 30s
+    #  timeout: 30s
+    #  retries: 3
+    #stdin_open: true
+    #tty: true
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    restart: unless-stopped
+
+  pgadmin:
+    container_name: ${PGADMIN_HOST}
+    build:
+      context: ./docker/pgadmin
+      args:
+        - APP_NAME
+        - POSTGRES_HOST
+        - POSTGRES_PORT
+        - POSTGRES_USER
+        - POSTGRES_PASSWORD
+        - POSTGRES_DATABASE
+    env_file:
+      - ./server/notebin/.env
+    volumes:
+      - pgadmin:/var/lib/pgadmin
+    ports:
+      - "${PGADMIN_PORT}:80"
+    restart: unless-stopped

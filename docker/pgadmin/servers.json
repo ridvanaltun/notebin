@@ -1,0 +1,14 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "%%APP_NAME%% Database",
+      "Group": "Servers",
+      "Host": "%%POSTGRES_HOST%%",
+      "Port": "%%POSTGRES_PORT%%",
+      "MaintenanceDB": "%%POSTGRES_DATABASE%%",
+      "Username": "%%POSTGRES_USER%%",
+      "SSLMode": "prefer",
+      "PassFile": "./pgpassfile"
+    }
+  }
+}

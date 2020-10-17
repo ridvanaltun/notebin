@@ -43,6 +43,11 @@ PASSWORD_RESET_TIMEOUT = env('PASSWORD_RESET_TIMEOUT')
 
 ALLOWED_HOSTS = []
 
+# Set dev db host
+if DEBUG == True:
+    DB_HOST = env('POSTGRES_DEV_HOST')
+else:
+    DB_HOST = env('POSTGRES_HOST')
 
 # Application definition
 
@@ -98,8 +103,14 @@ WSGI_APPLICATION = 'notebin.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        #'ENGINE': 'django.db.backends.sqlite3',
+        #'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': env('POSTGRES_DATABASE'),
+        'USER': env('POSTGRES_USER'),
+        'PASSWORD': env('POSTGRES_PASSWORD'),
+        'HOST': DB_HOST,
+        'PORT': env('POSTGRES_PORT'),
     }
 }
 
