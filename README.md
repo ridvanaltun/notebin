@@ -52,6 +52,6 @@ $ npm run start
 ## Up Containers
 
 ```bash
-# up pgadmin and postgres
+# up pgadmin, postgres and backend api server
 $ docker-compose up -d
 ```

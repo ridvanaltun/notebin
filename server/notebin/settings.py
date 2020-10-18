@@ -43,12 +43,6 @@ PASSWORD_RESET_TIMEOUT = env('PASSWORD_RESET_TIMEOUT')
 
 ALLOWED_HOSTS = []
 
-# Set dev db host
-if DEBUG == True:
-    DB_HOST = env('POSTGRES_DEV_HOST')
-else:
-    DB_HOST = env('POSTGRES_HOST')
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -60,7 +54,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework_simplejwt.token_blacklist',
-    'drf_yasg',
     'corsheaders',
     'api',
 ]
@@ -109,7 +102,7 @@ DATABASES = {
         'NAME': env('POSTGRES_DATABASE'),
         'USER': env('POSTGRES_USER'),
         'PASSWORD': env('POSTGRES_PASSWORD'),
-        'HOST': DB_HOST,
+        'HOST': env('POSTGRES_HOST'),
         'PORT': env('POSTGRES_PORT'),
     }
 }
@@ -202,19 +195,6 @@ SIMPLE_JWT = {
 #     'SLIDING_TOKEN_REFRESH_EXP_CLAIM': 'refresh_exp',
 #     'SLIDING_TOKEN_LIFETIME': timedelta(minutes=5),
 #     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
-}
-
-
-# drf_yasg
-
-SWAGGER_SETTINGS = {
-   'SECURITY_DEFINITIONS': {
-        'Bearer': {
-            'type': 'apiKey',
-            'name': 'Authorization',
-            'in': 'header'
-        }
-    }
 }
 
 # Cors
