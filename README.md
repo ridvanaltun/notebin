@@ -37,6 +37,21 @@
 - Track notes with your track list
 - Get an immutable backup of the notes you want
 
+## Showcase
+
+|  Sign In  	|  Sign Up	|  Forgot Password 	|   Note Trackings	| Note Backups	|
+|---	|---	|---	|---	| ---	|
+|  ![Sign In](/docs/sign_in.png "Sign In") 	|  ![Sign Up](/docs/sign_up.png "Sign Up") 	|  ![Forgot Password](/docs/forgot_password.png "Forgot Password") 	|  ![Note Trackings](/docs/note_trackings.png "Note Trackings") 	| ![Note Backups](/docs/note_backups.png "Note Backups") 	|
+
+|  Dark Mode	|  Settings Profile	|  Settings Security 	|   Settings Danger Zone	| Note	|
+|---	|---	|---	|---	| ---	|
+|  ![Dark Mode](/docs/dark_mode.png "Dark Mode") 	|  ![Profile](/docs/settings_profile.png "Profile") 	|  ![Security](/docs/settings_security.png "Security") 	|  ![Danger Zone](/docs/settings_danger_zone.png "Danger Zone") 	| ![Note](/docs/note.png "Note") 	|
+
+
+|  Note Password  	|  Note Font Size	|  Markdown Preview 	|   Code Preview	|
+|---	|---	|---	|---	|
+|  ![Note Password](/docs/note_password.png "Note Password") 	|  ![Change Note Font Size](/docs/note_change_font_size.png "Change Note Font Size") 	|  ![Markdown Preview](/docs/markdown_preview.png "Markdown Preview") 	|  ![Code Preview](/docs/code_preview.png "Code Preview") 	|
+
 ## PWA (Progressive Web App)
 
 To work with PWA, it is necessary to compile for production.
