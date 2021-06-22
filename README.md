@@ -2,7 +2,9 @@
 
 > In short, It helps you take notes, manage your notes and share your notes.
 
-## Techical Stuff
+![preview](/docs/preview.png "Preview")
+
+# Tech Stack
 
 - Django
 - Django REST Framework
@@ -15,7 +17,7 @@
 - Docker
 - Docker Compose
 
-## Features
+# Features
 
 - Create note with one click
 - Create new note with any url
@@ -37,7 +39,7 @@
 - Track notes with your track list
 - Get an immutable backup of the notes you want
 
-## Showcase
+# Showcase
 
 |  Sign In  	|  Sign Up	|  Forgot Password 	|   Note Trackings	| Note Backups	|
 |---	|---	|---	|---	| ---	|
@@ -52,7 +54,7 @@
 |---	|---	|---	|---	|
 |  ![Note Password](/docs/note_password.png "Note Password") 	|  ![Change Note Font Size](/docs/note_change_font_size.png "Change Note Font Size") 	|  ![Markdown Preview](/docs/markdown_preview.png "Markdown Preview") 	|  ![Code Preview](/docs/code_preview.png "Code Preview") 	|
 
-## PWA (Progressive Web App)
+# PWA (Progressive Web App)
 
 To work with PWA, it is necessary to compile for production.
 
@@ -64,7 +66,7 @@ $ npm run build
 $ npm run start
 ```
 
-## Up Containers
+# Up Containers
 
 ```bash
 # up pgadmin, postgres and backend api server
