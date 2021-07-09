@@ -111,7 +111,7 @@ const applyAppTokenRefreshInterceptor = (axiosClient, customOptions = {}) => {
 
     const originalRequest = error.config
     if (isRefreshing) {
-      return new Promise(function(resolve, reject) {
+      return new Promise(function (resolve, reject) {
         failedQueue.push({resolve, reject})
       })
         .then(token => {
@@ -151,21 +151,23 @@ const applyAppTokenRefreshInterceptor = (axiosClient, customOptions = {}) => {
   axiosClient.interceptors.response.use(undefined, interceptor)
 }
 
+// moved out from apiClient because in every request
+// ... these object create again which causes memory leak
+const client = axios.create({
+  baseURL: process.env.API_BASE_URL
+})
+
+// register the interceptor with one specific axios instance
+applyAppTokenRefreshInterceptor(client)
+
 const apiClient = async (requestSettings, bindToken = true) => {
-  const apiClient = axios.create({
-    baseURL: process.env.API_BASE_URL
-  })
-
-  // register the interceptor with one specific axios instance
-  applyAppTokenRefreshInterceptor(apiClient)
-
   // bind token
   const {accessToken} = store.getState().auth
   if (bindToken && accessToken) {
-    apiClient.defaults.headers.common.Authorization = `Bearer ${accessToken}`
+    client.defaults.headers.common.Authorization = `Bearer ${accessToken}`
   }
 
-  return await apiClient(requestSettings)
+  return await client(requestSettings)
 }
 
 export default apiClient
