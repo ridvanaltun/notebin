@@ -1,8 +1,17 @@
 # Notebin
 
-> In short, It helps you take notes, manage your notes and share your notes.
+> In short, It helps you take notes, manage your notes and share your notes in ease.
 
 ![preview](/docs/preview.png "Preview")
+
+# Table of Contents
+
+- [Notebin](#notebin)
+- [Table of Contents](#table-of-contents)
+- [Tech Stack](#tech-stack)
+- [Features](#features)
+- [Showcase](#showcase)
+- [Development](#development)
 
 # Tech Stack
 
@@ -54,21 +63,18 @@
 |---	|---	|---	|---	|
 |  ![Note Password](/docs/note_password.png "Note Password") 	|  ![Change Note Font Size](/docs/note_change_font_size.png "Change Note Font Size") 	|  ![Markdown Preview](/docs/markdown_preview.png "Markdown Preview") 	|  ![Code Preview](/docs/code_preview.png "Code Preview") 	|
 
-# PWA (Progressive Web App)
-
-To work with PWA, it is necessary to compile for production.
+# Development
 
 ```bash
-# build production
-$ npm run build
+# Clone the project.
+git clone https://github.com/ridvanaltun/notebin.git
 
-# start production server
-$ npm run start
-```
+# Go to web client, install depedencies, build for PWA and run production server.
+# To work with PWA, it is necessary to compile for production. (npm run build)
+cd web-client && npm i && npm run build && npm run start
 
-# Up Containers
-
-```bash
-# up pgadmin, postgres and backend api server
-$ docker-compose up -d
+# Go to project main folder and start back-end server.
+# pgAdmin (database client), PostgreSQL (database)
+# ... and Django App (back-end API server) will start.
+docker-compose up -d
 ```
