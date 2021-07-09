@@ -27,8 +27,9 @@ const Note = ({path, noteInfo, hasPassword}) => {
   const [loading, setLoading] = useState(false)
   const [spellcheck, setSpellcheck] = useState(false)
   const [handlingPassword, setHandlingPassword] = useState(hasPassword)
+  const [currPath, setCurrPath] = useState(path)
   const [passwordCookie, updatePasswordCookie] = useCookie(
-    `notes-${path}`,
+    `notes-${currPath}`,
     false
   )
   const [fontSize, updateFontSize] = useCookie(
@@ -50,7 +51,7 @@ const Note = ({path, noteInfo, hasPassword}) => {
           const res = await apiClient(
             {
               method: 'post',
-              url: `/notes/${path}`,
+              url: `/notes/${currPath}`,
               data: {
                 password: passwordCookie
               }
@@ -62,12 +63,12 @@ const Note = ({path, noteInfo, hasPassword}) => {
         } catch (error) {
           // Go to note login page
           toast.info('🐱‍🐉 Saved password incorrect')
-          const redirectLocation = `/${path}/login`
+          const redirectLocation = `/${currPath}/login`
           router.push(redirectLocation)
         }
       } else {
         // Go to note login page directly
-        const redirectLocation = `/${path}/login`
+        const redirectLocation = `/${currPath}/login`
         router.push(redirectLocation)
       }
     }
@@ -88,7 +89,7 @@ const Note = ({path, noteInfo, hasPassword}) => {
       await apiClient(
         {
           method: 'patch',
-          url: `/notes/${path}`,
+          url: `/notes/${currPath}`,
           data: {
             text: newNoteText
           }
@@ -119,7 +120,8 @@ const Note = ({path, noteInfo, hasPassword}) => {
   return (
     <>
       <NoteToolbar
-        path={path}
+        path={currPath}
+        setPath={setCurrPath}
         note={note}
         password={passwordCookie}
         updatePassword={updatePasswordCookie}

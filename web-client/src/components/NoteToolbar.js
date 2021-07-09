@@ -71,6 +71,7 @@ const useStyles = makeStyles(theme => ({
 
 const NoteToolbar = ({
   path,
+  setPath,
   note,
   password,
   updatePassword,
@@ -87,6 +88,7 @@ const NoteToolbar = ({
   const [changeUrlModal, setChangeUrlModal] = useState(false)
   const [changeFontSizeModal, setChangeFontSizeModal] = useState(false)
   const [newNotePassword, setNewNotePassword] = useState('')
+  const [currPath, setCurrPath] = useState(path)
   const [newPath, setNewPath] = useState(path)
   const [isTracked, setIsTracked] = useState(false)
 
@@ -99,7 +101,7 @@ const NoteToolbar = ({
     async function fetchNoteDetailsForUser() {
       const res = await apiClient({
         method: 'get',
-        url: `/notes/${path}/info`
+        url: `/notes/${currPath}/info`
       })
 
       if (res.data.is_tracked) setIsTracked(true)
@@ -108,11 +110,11 @@ const NoteToolbar = ({
   }, [])
 
   const onCodeViewPress = () => {
-    openInNewTab(`/code/${path}`)
+    openInNewTab(`/code/${currPath}`)
   }
 
   const onMarkdownViewPress = () => {
-    openInNewTab(`/markdown/${path}`)
+    openInNewTab(`/markdown/${currPath}`)
   }
 
   const onDownloadPress = () => {
@@ -128,7 +130,7 @@ const NoteToolbar = ({
     if (isTracked) {
       apiClient({
         method: 'delete',
-        url: `/trackings/${path}`
+        url: `/trackings/${currPath}`
       })
         .then(() => {
           setIsTracked(false)
@@ -145,7 +147,7 @@ const NoteToolbar = ({
     } else {
       apiClient({
         method: 'post',
-        url: `/trackings/${path}`
+        url: `/trackings/${currPath}`
       })
         .then(() => {
           setIsTracked(true)
@@ -167,7 +169,7 @@ const NoteToolbar = ({
       method: 'post',
       url: '/backups',
       data: {
-        path
+        path: currPath
       }
     })
       .then(() => {
@@ -271,7 +273,7 @@ const NoteToolbar = ({
       await apiClient(
         {
           method: 'post',
-          url: `/notes/${path}/password`,
+          url: `/notes/${currPath}/password`,
           data: {
             password: newNotePassword
           }
@@ -294,7 +296,7 @@ const NoteToolbar = ({
       await apiClient(
         {
           method: 'delete',
-          url: `/notes/${path}/password`,
+          url: `/notes/${currPath}/password`,
           data: {
             password
           }
@@ -390,7 +392,7 @@ const NoteToolbar = ({
     apiClient(
       {
         method: 'patch',
-        url: `/notes/${path}`,
+        url: `/notes/${currPath}`,
         data: {
           path: newPath
         }
@@ -398,6 +400,8 @@ const NoteToolbar = ({
       false
     )
       .then(() => {
+        setCurrPath(newPath)
+        setPath(newPath) // for parent component
         router.push(`/${newPath}`, undefined, {shallow: true})
         toast.info('Note successfully moved!')
         setChangeUrlModal(false)
@@ -418,7 +422,7 @@ const NoteToolbar = ({
 
   const closeChangeUrlModal = () => {
     setChangeUrlModal(false)
-    setNewPath(path)
+    setNewPath(currPath)
   }
 
   const renderChangeUrlModal = () => {
@@ -455,7 +459,7 @@ const NoteToolbar = ({
             onClick={handleChangeUrl}
             type="submit"
             color="primary"
-            disabled={newPath === path}>
+            disabled={currPath === newPath}>
             Apply
           </Button>
         </DialogActions>
@@ -576,6 +580,7 @@ const NoteToolbar = ({
 
 NoteToolbar.propTypes = {
   path: PropTypes.string.isRequired,
+  setPath: PropTypes.string.isRequired,
   password: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]),
   note: PropTypes.object.isRequired,
   updatePassword: PropTypes.func.isRequired,
