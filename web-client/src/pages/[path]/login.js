@@ -54,6 +54,7 @@ const NoteLogin = ({path, hasPassword}) => {
 
   // States
   const [password, setPassword] = useState('')
+  // eslint-disable-next-line no-unused-vars
   const [passwordCookie, updatePasswordCookie] = useCookie(
     `notes-${path}`,
     false

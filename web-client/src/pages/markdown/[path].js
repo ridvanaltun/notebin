@@ -67,7 +67,7 @@ const MarkdownPreview = ({noteInfo, path, hasPassword}) => {
   if (note.text) {
     return (
       <Box m={10}>
-        <ReactMarkdown source={note.text} />
+        <ReactMarkdown>{note.text}</ReactMarkdown>
       </Box>
     )
   }

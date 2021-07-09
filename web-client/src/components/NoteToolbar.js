@@ -133,12 +133,14 @@ const NoteToolbar = ({
         .then(() => {
           setIsTracked(false)
           toast.info('Untracked', {autoClose: 1000})
-          // eslint-disable-next-line handle-callback-err
         })
         .catch(error => {
-          toast.error('Tracking did not delete. An error occured!', {
-            autoClose: false
-          })
+          toast.error(
+            `Tracking did not delete. An error occured!, ${error.message}`,
+            {
+              autoClose: false
+            }
+          )
         })
     } else {
       apiClient({
@@ -148,12 +150,14 @@ const NoteToolbar = ({
         .then(() => {
           setIsTracked(true)
           toast.info('Tracked', {autoClose: 1000})
-          // eslint-disable-next-line handle-callback-err
         })
         .catch(error => {
-          toast.error('Tracking did not add. An error occured!', {
-            autoClose: false
-          })
+          toast.error(
+            `Tracking did not add. An error occured!, ${error.message}`,
+            {
+              autoClose: false
+            }
+          )
         })
     }
   }
@@ -168,12 +172,14 @@ const NoteToolbar = ({
     })
       .then(() => {
         toast.info('Backed Up', {autoClose: 1000})
-        // eslint-disable-next-line handle-callback-err
       })
       .catch(error => {
-        toast.error('Backup could not create. An error occured!', {
-          autoClose: false
-        })
+        toast.error(
+          `Backup could not create. An error occured!, ${error.message}`,
+          {
+            autoClose: false
+          }
+        )
       })
   }
 

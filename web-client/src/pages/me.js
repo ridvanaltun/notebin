@@ -757,7 +757,10 @@ const Me = () => {
         ]}
         actions={[
           {
-            icon: () => <Backup />,
+            icon: () =>
+              function renderBackupIcon() {
+                return <Backup />
+              },
             onClick: onNoteTrackingBackupPress,
             tooltip: 'Backup'
           }
@@ -790,7 +793,10 @@ const Me = () => {
         ]}
         actions={[
           {
-            icon: () => <Search />,
+            icon: () =>
+              function renderSearchIcon() {
+                return <Search />
+              },
             onClick: onBackupViewPress,
             tooltip: 'View'
           }
